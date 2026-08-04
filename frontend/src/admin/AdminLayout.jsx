@@ -22,30 +22,32 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-festival-darker flex">
+    <div className="min-h-screen bg-surface-0 flex font-sans text-ink-primary">
 
       {/* ── Sidebar ────────────────────────────────────── */}
       <aside className={`
-        fixed inset-y-0 left-0 z-40 w-60 bg-festival-card border-r border-festival-border
-        flex flex-col transition-transform duration-300
+        fixed inset-y-0 left-0 z-40 w-64 bg-surface-1 border-r border-surface-border
+        flex flex-col transition-transform duration-300 shadow-soft
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:relative lg:translate-x-0
       `}>
         {/* Brand */}
-        <div className="p-5 border-b border-festival-border">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🎪</span>
+        <div className="p-6 border-b border-surface-border">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-coral-100 flex items-center justify-center text-xl shadow-inner">
+              🎪
+            </div>
             <div>
-              <p className="font-display font-bold text-white text-lg leading-none">
-                Festival<span className="text-primary-400">Hub</span>
+              <p className="font-display font-bold text-ink-primary text-xl leading-none">
+                Festival<span className="text-coral-500">Hub</span>
               </p>
-              <p className="text-gray-500 text-xs mt-0.5">Admin Panel</p>
+              <p className="text-ink-tertiary font-bold text-xs mt-1 uppercase tracking-wider">Admin Panel</p>
             </div>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
           {NAV_ITEMS.map(({ to, icon, label, end }) => (
             <NavLink
               key={to}
@@ -53,33 +55,33 @@ export default function AdminLayout() {
               end={end}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
                   isActive
-                    ? 'bg-primary-900/50 text-primary-300 border border-primary-800/50'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-coral-50 text-coral-600 shadow-sm border border-coral-100'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-2'
                 }`
               }
             >
-              <span className="text-base">{icon}</span>
+              <span className="text-lg">{icon}</span>
               {label}
             </NavLink>
           ))}
         </nav>
 
         {/* Admin user */}
-        <div className="p-3 border-t border-festival-border">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-festival-darker mb-2">
-            <div className="w-8 h-8 rounded-full bg-primary-800 flex items-center justify-center text-primary-300 font-bold text-sm shrink-0">
+        <div className="p-4 border-t border-surface-border bg-surface-1">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-2 mb-3 border border-surface-border">
+            <div className="w-9 h-9 rounded-full bg-coral-500 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-soft">
               {admin?.username?.charAt(0)?.toUpperCase() || 'A'}
             </div>
             <div className="min-w-0">
-              <p className="text-white text-sm font-medium truncate">{admin?.name || admin?.username}</p>
-              <p className="text-gray-500 text-xs">Administrator</p>
+              <p className="text-ink-primary text-sm font-bold truncate">{admin?.name || admin?.username}</p>
+              <p className="text-ink-tertiary font-medium text-xs">Administrator</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-red-400 hover:bg-red-900/10 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-signal-danger hover:bg-red-50 hover:text-red-700 transition-colors border border-transparent hover:border-red-100"
           >
             <span>🚪</span> Sign Out
           </button>
@@ -88,33 +90,39 @@ export default function AdminLayout() {
 
       {/* Overlay for mobile */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-30 bg-black/60 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-30 bg-ink-primary/20 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* ── Main content ───────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
-        <header className="h-14 border-b border-festival-border bg-festival-card/50 backdrop-blur-sm flex items-center px-4 gap-4 shrink-0">
+        <header className="h-16 border-b border-surface-border bg-surface-1/80 backdrop-blur-md flex items-center px-6 gap-4 shrink-0 z-20 sticky top-0">
           <button
-            className="lg:hidden text-gray-400 hover:text-white p-1"
+            className="lg:hidden text-ink-secondary hover:text-ink-primary p-2 bg-surface-2 rounded-lg"
             onClick={() => setSidebarOpen(true)}
           >
-            ☰
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
+          
           <div className="flex-1" />
+          
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1"
+            className="btn-secondary btn-sm flex items-center gap-2"
           >
-            🌐 View Site
+            <span>🌐</span> View Public Site
           </a>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-5 lg:p-8">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto p-6 lg:p-10 bg-surface-0">
+          <div className="max-w-6xl mx-auto animate-fade-in">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

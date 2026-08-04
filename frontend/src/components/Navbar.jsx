@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/food-attractions',label: 'Food & Vendors' },
   { to: '/map',             label: 'Map' },
   { to: '/announcements',   label: 'Updates' },
+  { to: '/manage-ticket',   label: 'My Ticket' },
   { to: '/contact',         label: 'Contact' },
 ];
 

@@ -38,15 +38,67 @@ router.get('/', requireAdmin, async (req, res) => {
  * @access  Public
  */
 router.get('/:ref', async (req, res) => {
+  const email = req.query.email;
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required for ticket lookup' });
+  }
+
   try {
     const [rows] = await db.query(`
       SELECT b.*, e.title AS event_title, e.event_date, e.stage, e.start_time
       FROM bookings b
       LEFT JOIN events e ON b.event_id = e.id
-      WHERE b.booking_ref = ?
-    `, [req.params.ref]);
-    if (rows.length === 0) return res.status(404).json({ error: 'Booking not found' });
+      WHERE b.booking_ref = ? AND b.visitor_email = ?
+    `, [req.params.ref, email]);
+    
+    if (rows.length === 0) return res.status(404).json({ error: 'Ticket not found or email does not match' });
     res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * @route   DELETE /api/bookings/public/:ref
+ * @desc    Cancel a booking (public - requires email validation)
+ * @access  Public
+ */
+router.delete('/public/:ref', async (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  try {
+    const [bookings] = await db.query(`
+      SELECT b.id, b.event_id, b.quantity, e.event_date 
+      FROM bookings b 
+      JOIN events e ON b.event_id = e.id 
+      WHERE b.booking_ref = ? AND b.visitor_email = ?
+    `, [req.params.ref, email]);
+    
+    if (bookings.length === 0) return res.status(404).json({ error: 'Ticket not found or email does not match' });
+
+    const booking = bookings[0];
+
+    // Cancellation Policy Check
+    const eventDate = new Date(booking.event_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of today
+
+    // If the event is today or in the past, block cancellation
+    if (eventDate <= today) {
+      return res.status(400).json({ error: 'Tickets can only be cancelled 24 hours before the event.' });
+    }
+
+    // Delete booking
+    await db.query('DELETE FROM bookings WHERE id = ?', [booking.id]);
+
+    // Restore tickets
+    await db.query(
+      'UPDATE events SET tickets_available = tickets_available + ? WHERE id = ?',
+      [booking.quantity, booking.event_id]
+    );
+
+    res.json({ message: 'Ticket successfully cancelled' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

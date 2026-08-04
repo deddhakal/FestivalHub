@@ -15,6 +15,7 @@ import FestivalMap     from './pages/FestivalMap';
 import FoodAttractions from './pages/FoodAttractions';
 import Announcements   from './pages/Announcements';
 import Contact         from './pages/Contact';
+import ManageTicket    from './pages/ManageTicket';
 
 // Admin
 import AdminLogin          from './admin/AdminLogin';
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="/food-attractions" element={<VisitorLayout><FoodAttractions /></VisitorLayout>} />
           <Route path="/announcements" element={<VisitorLayout><Announcements /></VisitorLayout>} />
           <Route path="/contact" element={<VisitorLayout><Contact /></VisitorLayout>} />
+          <Route path="/manage-ticket" element={<ManageTicket />} />
 
           {/* ── Admin login (no layout) ─────────────────── */}
           <Route path="/admin/login" element={<AdminLogin />} />

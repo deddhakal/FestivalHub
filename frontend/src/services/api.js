@@ -16,8 +16,10 @@ export const deleteEvent = (id)        => api.delete(`/events/${id}`);
 // ── Bookings ─────────────────────────────────────────────────
 export const createBooking  = (data) => api.post('/bookings', data);
 export const getBookings    = ()     => api.get('/bookings');
-export const getBookingByRef= (ref)  => api.get(`/bookings/${ref}`);
+export const getBookingByRef= (ref, email) => api.get(`/bookings/${ref}?email=${encodeURIComponent(email)}`);
 export const deleteBooking  = (id)   => api.delete(`/bookings/${id}`);
+export const deletePublicBooking = (ref, email) => api.delete(`/bookings/public/${ref}?email=${encodeURIComponent(email)}`);
+
 
 // ── Vendors ──────────────────────────────────────────────────
 export const getVendors   = (params = {}) => api.get('/vendors', { params });

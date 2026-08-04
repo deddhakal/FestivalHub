@@ -9,9 +9,10 @@ export default function ManageTickets() {
   const [tab,       setTab]       = useState('bookings'); // 'bookings' | 'availability'
   const [saving,    setSaving]    = useState(false);
   const [msg,       setMsg]       = useState('');
+  const [msgType,   setMsgType]   = useState('success');
   const [search,    setSearch]    = useState('');
 
-  const flash = m => { setMsg(m); setTimeout(() => setMsg(''), 3500); };
+  const flash = (m, type='success') => { setMsg(m); setMsgType(type); setTimeout(() => setMsg(''), 3500); };
 
   const load = async () => {
     setLoading(true);
@@ -19,7 +20,7 @@ export default function ManageTickets() {
       const [bRes, eRes] = await Promise.all([getBookings(), getEvents()]);
       setBookings(bRes.data);
       setEvents(eRes.data);
-    } catch (e) { flash(`❌ ${e.response?.data?.error || e.message}`); }
+    } catch (e) { flash(e.response?.data?.error || e.message, 'error'); }
     finally { setLoading(false); }
   };
 
@@ -30,9 +31,9 @@ export default function ManageTickets() {
     setSaving(true);
     try {
       await deleteBooking(b.id);
-      flash('✅ Booking cancelled and tickets restored.');
+      flash('Booking cancelled and tickets restored.', 'success');
       load();
-    } catch (e) { flash(`❌ ${e.response?.data?.error || e.message}`); }
+    } catch (e) { flash(e.response?.data?.error || e.message, 'error'); }
     finally { setSaving(false); }
   };
 
@@ -42,9 +43,9 @@ export default function ManageTickets() {
     setSaving(true);
     try {
       await updateEvent(event.id, { ...event, tickets_available: count });
-      flash('✅ Ticket count updated.');
+      flash('Ticket count updated.', 'success');
       load();
-    } catch (e) { flash(`❌ ${e.response?.data?.error || e.message}`); }
+    } catch (e) { flash(e.response?.data?.error || e.message, 'error'); }
     finally { setSaving(false); }
   };
 
@@ -58,29 +59,31 @@ export default function ManageTickets() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display font-black text-2xl text-white">Tickets & Bookings</h1>
-          <p className="text-gray-400 text-sm mt-1">{bookings.length} total booking{bookings.length !== 1 ? 's' : ''}</p>
+          <h1 className="font-display font-black text-3xl text-ink-primary">Tickets & Bookings</h1>
+          <p className="text-ink-secondary text-sm mt-1">{bookings.length} total booking{bookings.length !== 1 ? 's' : ''}</p>
         </div>
         <button onClick={load} className="btn-secondary btn-sm">🔄 Refresh</button>
       </div>
 
       {msg && (
-        <div className={`mb-4 p-3 rounded-xl text-sm ${msg.startsWith('✅') ? 'bg-green-900/30 border border-green-700/50 text-green-300' : 'bg-red-900/30 border border-red-700/50 text-red-300'}`}>
-          {msg}
+        <div className={`mb-6 p-4 rounded-xl text-sm font-bold border animate-fade-in ${msgType === 'success' ? 'bg-mint-50 border-mint-200 text-mint-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+          {msgType === 'success' ? '✅' : '⚠️'} {msg}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-3 mb-8 border-b border-surface-border pb-4 overflow-x-auto custom-scrollbar">
         {[
           { key: 'bookings',     label: `🎟️ Bookings (${bookings.length})` },
           { key: 'availability', label: '📊 Ticket Availability' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${
-              tab === t.key ? 'bg-primary-600 text-white' : 'bg-festival-card border border-festival-border text-gray-400 hover:text-white'
+            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border whitespace-nowrap ${
+              tab === t.key 
+                ? 'bg-mint-50 border-mint-200 text-mint-700 shadow-sm' 
+                : 'bg-surface-0 border-surface-border text-ink-secondary hover:bg-surface-1 hover:text-ink-primary'
             }`}
           >
             {t.label}
@@ -88,61 +91,78 @@ export default function ManageTickets() {
         ))}
       </div>
 
-      {loading ? <LoadingSpinner /> : (
+      {loading ? <div className="py-20 flex justify-center"><LoadingSpinner /></div> : (
         <>
           {/* ── Bookings table ────────────────────────────── */}
           {tab === 'bookings' && (
             <>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  className="input max-w-sm"
-                  placeholder="🔍 Search by name, email, ref, event..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                />
+              <div className="mb-6 max-w-md">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="text-ink-tertiary">🔍</span>
+                  </div>
+                  <input
+                    type="text"
+                    className="field-input pl-11"
+                    placeholder="Search by name, email, ref, event..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
+                </div>
               </div>
 
               {filtered.length === 0 ? (
-                <EmptyState icon="🎟️" title="No bookings found" />
+                <div className="card p-12 text-center border border-surface-border">
+                  <div className="text-5xl mb-4">🎟️</div>
+                  <h3 className="font-display text-xl font-bold text-ink-primary mb-2">No bookings found</h3>
+                  <p className="text-ink-secondary text-sm">Try adjusting your search criteria.</p>
+                </div>
               ) : (
-                <div className="table-container">
-                  <table className="table">
+                <div className="card border border-surface-border overflow-hidden">
+                  <table className="data-table">
                     <thead>
                       <tr>
-                        <th>Ref</th><th>Visitor</th><th>Event</th>
-                        <th>Type</th><th>Qty</th><th>Date</th><th>Action</th>
+                        <th>Ref</th>
+                        <th>Visitor Details</th>
+                        <th>Event</th>
+                        <th>Tickets</th>
+                        <th>Booked On</th>
+                        <th className="text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filtered.map(b => (
                         <tr key={b.id}>
-                          <td><span className="font-mono text-primary-400 text-xs">{b.booking_ref}</span></td>
+                          <td><span className="ref-code">{b.booking_ref}</span></td>
                           <td>
-                            <p className="text-white text-sm font-medium">{b.visitor_name}</p>
-                            <p className="text-gray-500 text-xs">{b.visitor_email}</p>
+                            <p className="text-ink-primary text-sm font-bold">{b.visitor_name}</p>
+                            <p className="text-ink-tertiary text-xs font-medium">{b.visitor_email}</p>
                           </td>
                           <td>
-                            <p className="text-gray-300 text-sm">{b.event_title}</p>
-                            <p className="text-gray-500 text-xs">{b.stage}</p>
+                            <p className="text-ink-secondary text-sm font-bold">{b.event_title}</p>
+                            <p className="text-ink-tertiary text-xs font-medium mt-0.5">{b.stage}</p>
                           </td>
                           <td>
-                            <span className={`badge ${b.ticket_type === 'VIP' ? 'badge-gold' : 'badge-blue'}`}>
-                              {b.ticket_type === 'VIP' ? '⭐' : '🎟️'} {b.ticket_type}
-                            </span>
+                            <div className="flex flex-col items-start gap-1">
+                              <span className={`badge ${b.ticket_type === 'VIP' ? 'badge-gold' : 'badge-sky'}`}>
+                                {b.ticket_type === 'VIP' ? '⭐' : '🎟️'} {b.ticket_type}
+                              </span>
+                              <span className="text-xs font-bold text-ink-secondary mt-1">Qty: {b.quantity}</span>
+                            </div>
                           </td>
-                          <td className="text-white font-semibold">{b.quantity}</td>
-                          <td className="text-gray-400 text-sm">
-                            {new Date(b.created_at).toLocaleDateString('en-AU', { day:'numeric', month:'short' })}
+                          <td className="text-ink-secondary font-medium">
+                            {new Date(b.created_at).toLocaleDateString('en-US', { day:'numeric', month:'short' })}
                           </td>
                           <td>
-                            <button
-                              disabled={saving}
-                              onClick={() => handleCancelBooking(b)}
-                              className="px-3 py-1 bg-red-900/40 hover:bg-red-900/70 text-red-300 text-xs rounded-lg border border-red-700/40 transition-colors disabled:opacity-40"
-                            >
-                              ✕ Cancel
-                            </button>
+                            <div className="flex justify-end">
+                              <button
+                                disabled={saving}
+                                onClick={() => handleCancelBooking(b)}
+                                className="bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold px-3 py-1.5 text-xs rounded-lg shadow-sm transition-all duration-200 disabled:opacity-50"
+                              >
+                                Cancel
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -155,10 +175,15 @@ export default function ManageTickets() {
 
           {/* ── Ticket availability ────────────────────────── */}
           {tab === 'availability' && (
-            <div className="table-container">
-              <table className="table">
+            <div className="card border border-surface-border overflow-hidden">
+              <table className="data-table">
                 <thead>
-                  <tr><th>Event</th><th>Date</th><th>Stage</th><th>Available</th><th>Adjust</th></tr>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date & Stage</th>
+                    <th>Available Tickets</th>
+                    <th>Adjust Inventory</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {events.map(ev => (
@@ -181,32 +206,45 @@ function TicketRow({ event, saving, onUpdate }) {
   return (
     <tr>
       <td>
-        <p className="text-white text-sm font-medium">{event.title}</p>
-        <p className="text-gray-500 text-xs">{event.category}</p>
+        <p className="font-bold text-ink-primary">{event.title}</p>
+        <p className="text-ink-tertiary text-xs font-semibold uppercase tracking-wider mt-0.5">{event.category}</p>
       </td>
-      <td className="text-gray-300 text-sm">
-        {new Date(event.event_date).toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short' })}
-      </td>
-      <td className="text-gray-400 text-sm">{event.stage}</td>
       <td>
-        <span className={`text-sm font-bold ${val < 30 ? 'text-red-400' : 'text-green-400'}`}>{val}</span>
+        <p className="text-ink-secondary font-medium">{new Date(event.event_date).toLocaleDateString('en-US', { weekday:'short', day:'numeric', month:'short' })}</p>
+        <p className="text-ink-tertiary text-xs font-medium mt-0.5">{event.stage}</p>
+      </td>
+      <td>
+        <span className={`chip ${val < 30 ? 'chip-warning' : 'chip-success'}`}>
+          {val} available
+        </span>
       </td>
       <td>
         <div className="flex items-center gap-2">
-          <button onClick={() => setVal(v => Math.max(0, v - 10))} className="w-7 h-7 rounded-lg bg-festival-darker border border-festival-border text-white hover:bg-festival-border transition-colors text-sm">−</button>
+          <button 
+            onClick={() => setVal(v => Math.max(0, v - 10))} 
+            className="w-8 h-8 rounded-xl bg-surface-2 border border-surface-border text-ink-secondary hover:bg-surface-border transition-colors font-bold flex items-center justify-center shadow-sm"
+          >
+            −
+          </button>
           <input
             type="number"
             min="0"
-            className="w-16 text-center bg-festival-darker border border-festival-border rounded-lg px-2 py-1 text-white text-sm focus:border-primary-500 focus:outline-none"
+            className="w-20 text-center bg-white border border-surface-border rounded-xl px-2 py-1.5 text-ink-primary font-bold focus:border-coral-500 focus:outline-none focus:ring-1 focus:ring-coral-500"
             value={val}
             onChange={e => setVal(Number(e.target.value))}
           />
-          <button onClick={() => setVal(v => v + 10)} className="w-7 h-7 rounded-lg bg-festival-darker border border-festival-border text-white hover:bg-festival-border transition-colors text-sm">+</button>
+          <button 
+            onClick={() => setVal(v => v + 10)} 
+            className="w-8 h-8 rounded-xl bg-surface-2 border border-surface-border text-ink-secondary hover:bg-surface-border transition-colors font-bold flex items-center justify-center shadow-sm"
+          >
+            +
+          </button>
+          
           {changed && (
             <button
               disabled={saving}
               onClick={() => onUpdate(event, val)}
-              className="px-3 py-1 bg-green-700 hover:bg-green-600 text-white text-xs rounded-lg transition-colors disabled:opacity-50"
+              className="ml-2 btn-primary px-4 py-1.5 text-xs disabled:opacity-50"
             >
               Save
             </button>

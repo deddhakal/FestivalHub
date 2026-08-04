@@ -7,13 +7,14 @@ export default function AdminMessages() {
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
   const [msg,     setMsg]     = useState('');
+  const [msgType, setMsgType] = useState('success');
   const [expanded,setExpanded]= useState(null);
 
-  const flash = m => { setMsg(m); setTimeout(() => setMsg(''), 3000); };
+  const flash = (m, type='success') => { setMsg(m); setMsgType(type); setTimeout(() => setMsg(''), 3000); };
 
   const load = () => {
     setLoading(true);
-    getMessages().then(r => setMsgs(r.data)).catch(e => flash(`❌ ${e.message}`)).finally(() => setLoading(false));
+    getMessages().then(r => setMsgs(r.data)).catch(e => flash(e.message, 'error')).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);
@@ -23,78 +24,86 @@ export default function AdminMessages() {
     setSaving(true);
     try {
       await deleteMessage(m.id);
-      flash('✅ Message deleted.');
+      flash('Message deleted.', 'success');
       load();
-    } catch (e) { flash(`❌ ${e.message}`); }
+    } catch (e) { flash(e.message, 'error'); }
     finally { setSaving(false); }
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display font-black text-2xl text-white">Contact Messages</h1>
-          <p className="text-gray-400 text-sm mt-1">{msgs.length} message{msgs.length !== 1 ? 's' : ''} received</p>
+          <h1 className="font-display font-black text-3xl text-ink-primary">Contact Messages</h1>
+          <p className="text-ink-secondary text-sm mt-1">{msgs.length} message{msgs.length !== 1 ? 's' : ''} received</p>
         </div>
-        <button onClick={load} className="btn-secondary btn-sm">🔄 Refresh</button>
+        <button onClick={load} className="btn-secondary btn-sm">🔄 Refresh Inbox</button>
       </div>
 
       {msg && (
-        <div className={`mb-4 p-3 rounded-xl text-sm ${msg.startsWith('✅') ? 'bg-green-900/30 border border-green-700/50 text-green-300' : 'bg-red-900/30 border border-red-700/50 text-red-300'}`}>
-          {msg}
+        <div className={`mb-6 p-4 rounded-xl text-sm font-bold border animate-fade-in ${msgType === 'success' ? 'bg-mint-50 border-mint-200 text-mint-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+          {msgType === 'success' ? '✅' : '⚠️'} {msg}
         </div>
       )}
 
-      {loading ? <LoadingSpinner /> : msgs.length === 0 ? (
-        <EmptyState icon="✉️" title="No messages yet" subtitle="Contact form submissions will appear here." />
+      {loading ? <div className="py-20 flex justify-center"><LoadingSpinner /></div> : msgs.length === 0 ? (
+        <div className="card p-12 text-center border border-surface-border">
+          <div className="text-5xl mb-4">✉️</div>
+          <h3 className="font-display text-xl font-bold text-ink-primary mb-2">Inbox is empty</h3>
+          <p className="text-ink-secondary text-sm">Contact form submissions will appear here.</p>
+        </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {msgs.map(m => (
-            <div key={m.id} className="card overflow-hidden">
+            <div key={m.id} className={`card border transition-all duration-200 overflow-hidden ${expanded === m.id ? 'border-coral-200 shadow-md ring-1 ring-coral-100' : 'border-surface-border'}`}>
               <div
-                className="p-5 cursor-pointer hover:bg-festival-darker/50 transition-colors"
+                className="p-5 cursor-pointer hover:bg-surface-0 transition-colors"
                 onClick={() => setExpanded(expanded === m.id ? null : m.id)}
               >
                 <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-full bg-blue-900/50 border border-blue-700/50 flex items-center justify-center text-blue-300 font-bold shrink-0">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 font-display font-bold text-lg shrink-0">
                       {m.name?.charAt(0)?.toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-white font-medium">{m.name}</p>
-                      <p className="text-gray-500 text-xs truncate">{m.email}</p>
+                      <p className="text-ink-primary font-bold">{m.name}</p>
+                      <p className="text-ink-tertiary text-xs font-semibold truncate">{m.email}</p>
                     </div>
                     {m.subject && (
-                      <span className="badge-blue hidden sm:inline-flex">{m.subject}</span>
+                      <span className="badge-sky hidden sm:inline-flex ml-2">{m.subject}</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <p className="text-gray-500 text-xs">
-                      {new Date(m.created_at).toLocaleDateString('en-AU', { day:'numeric', month:'short' })}
+                  <div className="flex items-center gap-4 shrink-0">
+                    <p className="text-ink-tertiary text-xs font-bold uppercase tracking-wider hidden sm:block">
+                      {new Date(m.created_at).toLocaleDateString('en-US', { day:'numeric', month:'short' })}
                     </p>
-                    <span className="text-gray-500 text-sm">{expanded === m.id ? '▲' : '▼'}</span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-200 ${expanded === m.id ? 'bg-surface-2 rotate-180' : 'bg-surface-1'}`}>
+                      ▼
+                    </div>
                   </div>
                 </div>
 
                 {/* Preview when collapsed */}
                 {expanded !== m.id && (
-                  <p className="text-gray-500 text-sm mt-2 ml-12 line-clamp-1">{m.message}</p>
+                  <p className="text-ink-secondary text-sm mt-3 ml-14 line-clamp-1">{m.message}</p>
                 )}
               </div>
 
               {/* Expanded body */}
               {expanded === m.id && (
-                <div className="px-5 pb-5 border-t border-festival-border pt-4">
-                  <p className="text-gray-300 text-sm leading-relaxed mb-4">{m.message}</p>
+                <div className="px-6 pb-6 border-t border-surface-border pt-5 ml-14">
+                  <div className="bg-surface-0 p-5 rounded-2xl border border-surface-border mb-5">
+                    <p className="text-ink-primary text-sm leading-relaxed whitespace-pre-wrap">{m.message}</p>
+                  </div>
                   <div className="flex gap-3">
                     <a href={`mailto:${m.email}?subject=Re: ${m.subject || 'Your Festival Hub Enquiry'}`}
-                      className="btn-secondary btn-sm text-xs">
+                      className="btn-primary px-4 py-2 text-sm shadow-none">
                       📧 Reply via Email
                     </a>
                     <button
                       disabled={saving}
-                      onClick={() => handleDelete(m)}
-                      className="btn-danger btn-sm text-xs disabled:opacity-50"
+                      onClick={(e) => { e.stopPropagation(); handleDelete(m); }}
+                      className="bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold px-4 py-2 text-sm rounded-full shadow-sm transition-all duration-200 disabled:opacity-50"
                     >
                       🗑️ Delete
                     </button>

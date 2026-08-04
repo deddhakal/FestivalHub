@@ -3,66 +3,58 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { getEvents, createBooking } from '../services/api';
 import { LoadingSpinner } from '../components/UI';
 
+import DigitalTicket from '../components/DigitalTicket';
+
 /* ── Confirmation ────────────────────────────────────────────── */
 function ConfirmationView({ booking, event, onReset }) {
+  // Merge booking and event details for the ticket component
+  const ticketData = {
+    ...booking,
+    event_title: event?.title || booking.event,
+    event_date: event?.event_date,
+    stage: event?.stage,
+    start_time: event?.start_time
+  };
+
   return (
-    <div className="min-h-screen pt-20 pb-16 flex items-center justify-center px-4 bg-surface-0">
-      <div className="max-w-md w-full animate-scale-in">
-        <div className="card shadow-lift p-8 text-center">
-          {/* Success mark */}
-          <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
+    <div className="min-h-screen pt-24 pb-16 flex flex-col items-center justify-center px-4 md:px-6 bg-surface-0">
+      
+      <div className="max-w-3xl w-full animate-scale-in flex flex-col items-center">
+        {/* Success mark */}
+        <div className="w-16 h-16 rounded-full bg-mint-50 border border-mint-200 flex items-center justify-center mx-auto mb-6 no-print">
+          <svg className="w-8 h-8 text-mint-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
 
-          <h2 className="font-display text-3xl font-bold text-ink-primary mb-2">Booking Confirmed!</h2>
-          <p className="text-sm font-medium text-ink-secondary mb-8">
-            Your tickets are reserved. We have emailed you the receipt.
-          </p>
+        <h2 className="font-display text-4xl font-black text-ink-primary mb-2 no-print text-center">Booking Confirmed!</h2>
+        <p className="text-sm font-bold text-ink-secondary mb-10 no-print text-center">
+          Your tickets are secured. Present this digital ticket at the entrance.
+        </p>
 
-          {/* Reference number */}
-          <div className="bg-surface-1 border border-surface-border rounded-2xl p-5 mb-6 text-left space-y-3 shadow-soft">
-            <div className="flex items-center justify-between border-b border-surface-border pb-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-ink-tertiary">Booking Ref</span>
-              <span className="font-display text-lg font-bold text-coral-500">{booking.booking_ref}</span>
-            </div>
-            <div className="flex justify-between text-sm font-medium">
-              <span className="text-ink-secondary">Event</span>
-              <span className="text-ink-primary text-right max-w-[60%]">{booking.event || (event?.title)}</span>
-            </div>
-            <div className="flex justify-between text-sm font-medium">
-              <span className="text-ink-secondary">Ticket</span>
-              <span className="text-ink-primary">{booking.ticket_type}</span>
-            </div>
-            <div className="flex justify-between text-sm font-medium">
-              <span className="text-ink-secondary">Quantity</span>
-              <span className="text-ink-primary">
-                {booking.quantity} ticket{booking.quantity > 1 ? 's' : ''}
-              </span>
-            </div>
-            {event && (
-              <div className="flex justify-between text-sm font-medium">
-                <span className="text-ink-secondary">Date</span>
-                <span className="text-ink-primary">
-                  {new Date(event.event_date).toLocaleDateString('en-US', {
-                    weekday: 'short', day: 'numeric', month: 'short',
-                  })} · {event.start_time?.slice(0,5)}
-                </span>
-              </div>
-            )}
-          </div>
+        {/* Toolbar */}
+        <div className="flex gap-3 mb-6 w-full justify-end no-print">
+          <button onClick={() => window.print()} className="btn-secondary">
+            📥 Download PDF
+          </button>
+        </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button onClick={onReset} className="btn-secondary btn-lg flex-1">
-              Book Another
-            </button>
-            <Link to="/events" className="btn-primary btn-lg flex-1">
-              View Schedule
-            </Link>
-          </div>
+        {/* Digital Ticket */}
+        <div className="w-full mb-10">
+          <DigitalTicket ticket={ticketData} />
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md no-print">
+          <button onClick={onReset} className="btn-secondary btn-lg flex-1">
+            Book Another
+          </button>
+          <Link to="/" className="btn-primary btn-lg flex-1 text-center">
+            Back to Home
+          </Link>
         </div>
       </div>
+
     </div>
   );
 }
@@ -173,7 +165,13 @@ export default function Booking() {
         ticket_type: form.ticket_type,
         quantity: Number(form.quantity) 
       });
-      setConfirmed({ ...res.data, ticket_type: form.ticket_type, quantity: form.quantity });
+      setConfirmed({ 
+        ...res.data, 
+        visitor_name: form.visitor_name,
+        visitor_email: form.visitor_email,
+        ticket_type: form.ticket_type, 
+        quantity: form.quantity 
+      });
     } catch (err) {
       setErrors({ submit: err.response?.data?.error || 'Booking failed. Please try again later.' });
     } finally {
