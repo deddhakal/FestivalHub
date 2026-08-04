@@ -34,6 +34,9 @@ CREATE TABLE events (
   end_time TIME,
   category VARCHAR(50),
   image_url VARCHAR(255),
+  is_free BOOLEAN DEFAULT 1,
+  general_price DECIMAL(10,2) DEFAULT 0.00,
+  vip_price DECIMAL(10,2) DEFAULT 0.00,
   tickets_available INT DEFAULT 100,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

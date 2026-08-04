@@ -5,7 +5,7 @@ import { LoadingSpinner, EmptyState } from '../components/UI';
 const BLANK = {
   title: '', description: '', stage: 'Main Stage',
   event_date: '', start_time: '', end_time: '',
-  category: 'Pop', tickets_available: 100,
+  category: 'Pop', tickets_available: 100, is_free: 1, general_price: 0, vip_price: 0,
 };
 
 const STAGES     = ['Main Stage', 'Dance Arena', 'Garden Stage', 'Family Zone'];
@@ -59,35 +59,60 @@ function EventForm({ initial = BLANK, onSave, onCancel, saving }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="field-label">Stage</label>
-          <select className="field-input bg-white" value={form.stage} onChange={e => u('stage', e.target.value)}>
-            {STAGES.map(s => <option key={s}>{s}</option>)}
-          </select>
+          <input type="text" className="field-input bg-white" placeholder="e.g. Main Stage" value={form.stage} onChange={e => u('stage', e.target.value)} />
         </div>
         <div>
           <label className="field-label">Category</label>
-          <select className="field-input bg-white" value={form.category} onChange={e => u('category', e.target.value)}>
-            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-          </select>
+          <input type="text" list="category-options" className="field-input bg-white" placeholder="e.g. Pop" value={form.category} onChange={e => u('category', e.target.value)} />
+          <datalist id="category-options">
+            {CATEGORIES.map(c => <option key={c} value={c} />)}
+          </datalist>
         </div>
       </div>
       <div>
-        <label className="field-label">Date *</label>
-        <input type="date" className="field-input" value={form.event_date} onChange={e => u('event_date', e.target.value)} required />
+        <label className="field-label">Date (YYYY-MM-DD) *</label>
+        <input type="text" className="field-input" placeholder="e.g. 2026-10-15" value={form.event_date} onChange={e => u('event_date', e.target.value)} required />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="field-label">Start Time *</label>
-          <input type="time" className="field-input" value={form.start_time} onChange={e => u('start_time', e.target.value)} required />
+          <label className="field-label">Start Time (HH:MM) *</label>
+          <input type="text" className="field-input" placeholder="e.g. 18:00" value={form.start_time} onChange={e => u('start_time', e.target.value)} required />
         </div>
         <div>
-          <label className="field-label">End Time</label>
-          <input type="time" className="field-input" value={form.end_time} onChange={e => u('end_time', e.target.value)} />
+          <label className="field-label">End Time (HH:MM)</label>
+          <input type="text" className="field-input" placeholder="e.g. 23:00" value={form.end_time} onChange={e => u('end_time', e.target.value)} />
         </div>
       </div>
-      <div>
-        <label className="field-label">Tickets Available</label>
-        <input type="number" min="0" className="field-input" value={form.tickets_available} onChange={e => u('tickets_available', Number(e.target.value))} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="field-label">Tickets Available</label>
+          <input type="number" min="0" className="field-input" value={form.tickets_available} onChange={e => u('tickets_available', Number(e.target.value))} />
+        </div>
+        <div>
+          <label className="field-label">Cost</label>
+          <div className="flex bg-surface-1 rounded-xl p-1 border border-surface-border">
+            <button type="button" onClick={() => u('is_free', 1)} className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${form.is_free ? 'bg-white shadow-soft text-ink-primary' : 'text-ink-secondary hover:text-ink-primary'}`}>
+              Free
+            </button>
+            <button type="button" onClick={() => u('is_free', 0)} className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${!form.is_free ? 'bg-white shadow-soft text-ink-primary' : 'text-ink-secondary hover:text-ink-primary'}`}>
+              Paid
+            </button>
+          </div>
+        </div>
       </div>
+      
+      {!form.is_free && (
+        <div className="grid grid-cols-2 gap-4 animate-fade-in p-4 bg-surface-1 rounded-xl border border-surface-border">
+          <div>
+            <label className="field-label">General Ticket Price ($)</label>
+            <input type="text" inputMode="decimal" className="field-input bg-white" value={form.general_price} onChange={e => u('general_price', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="e.g. 45.00" />
+          </div>
+          <div>
+            <label className="field-label">VIP Ticket Price ($)</label>
+            <input type="text" inputMode="decimal" className="field-input bg-white" value={form.vip_price} onChange={e => u('vip_price', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="e.g. 120.00" />
+          </div>
+        </div>
+      )}
       <div className="flex gap-3 pt-4 mt-6 border-t border-surface-border">
         <button type="submit" disabled={saving} className="btn-primary flex-1">
           {saving ? 'Saving...' : 'Save Event'}
@@ -209,8 +234,11 @@ export default function ManageEvents() {
                     <p className="text-ink-tertiary text-xs font-semibold">{ev.start_time?.slice(0,5)}</p>
                   </td>
                   <td>
-                    <span className={`chip ${ev.tickets_available < 30 ? 'chip-warning' : 'chip-success'}`}>
+                    <span className={`chip ${ev.tickets_available < 30 ? 'chip-warning' : 'chip-success'} mb-1 block w-fit`}>
                       {ev.tickets_available} tickets
+                    </span>
+                    <span className="text-xs font-bold text-ink-secondary">
+                      {ev.is_free ? 'Free' : `From $${Number(ev.general_price).toFixed(2)}`}
                     </span>
                   </td>
                   <td>
@@ -249,7 +277,10 @@ export default function ManageEvents() {
               start_time: modal.edit.start_time?.slice(0,5) || '',
               end_time: modal.edit.end_time?.slice(0,5) || '',
               category: modal.edit.category, tickets_available: modal.edit.tickets_available,
-              image_url: modal.edit.image_url,
+              image_url: modal.edit.image_url, 
+              is_free: modal.edit.is_free ?? 1, 
+              general_price: modal.edit.general_price ?? 0, 
+              vip_price: modal.edit.vip_price ?? 0,
             } : BLANK}
             onSave={handleSave}
             onCancel={() => setModal(null)}

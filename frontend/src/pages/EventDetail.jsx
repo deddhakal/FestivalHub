@@ -64,7 +64,7 @@ export default function EventDetail() {
             className="btn-ghost btn-sm gap-2 -ml-1.5 text-ink-secondary"
           >
             <BackArrow />
-            Back to Schedule
+            Back
           </button>
         </div>
 
@@ -105,6 +105,10 @@ export default function EventDetail() {
             label="Tickets"
             value={sold ? 'Sold Out' : `${event.tickets_available} remaining`}
             highlight={sold}
+          />
+          <DetailItem
+            label="Cost"
+            value={event.is_free ? 'Free' : `Gen: $${Number(event.general_price).toFixed(2)} | VIP: $${Number(event.vip_price).toFixed(2)}`}
           />
         </div>
 

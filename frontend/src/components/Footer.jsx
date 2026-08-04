@@ -27,8 +27,7 @@ export default function Footer() {
               Festival<span className="text-brand-500">Hub</span>
             </div>
             <p className="text-sm text-ink-tertiary leading-relaxed mb-5">
-              Three days of world-class music and culture at Melbourne Showgrounds.
-              August 15–17, 2026.
+              Connecting the campus community through world-class events, hackathons, and culture.
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-surface-border text-2xs text-ink-tertiary uppercase tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-signal-success animate-pulse" />
@@ -62,9 +61,9 @@ export default function Footer() {
             © 2026 Festival Hub Pty Ltd. All rights reserved.
           </div>
           <div className="flex items-center gap-4 text-xs text-ink-tertiary">
-            <span>Melbourne Showgrounds, VIC</span>
+            <span>University Campus</span>
             <span className="text-surface-muted">·</span>
-            <span>Aug 15–17, 2026</span>
+            <span>All Year Round</span>
           </div>
         </div>
       </div>

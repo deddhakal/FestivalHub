@@ -92,10 +92,9 @@ export default function Booking() {
     cardCvc: ''
   });
 
-  // Ticket Pricing (Mock)
-  const PRICING = {
-    General: 45.00,
-    VIP: 120.00
+  const getTicketPrice = (type) => {
+    if (!selectedEvent || selectedEvent.is_free) return 0;
+    return type === 'VIP' ? Number(selectedEvent.vip_price) : Number(selectedEvent.general_price);
   };
 
   useEffect(() => {
@@ -194,7 +193,7 @@ export default function Booking() {
     );
   }
 
-  const subtotal = PRICING[form.ticket_type] * form.quantity;
+  const subtotal = getTicketPrice(form.ticket_type) * form.quantity;
   const fee = subtotal * 0.05; // 5% booking fee
   const total = subtotal + fee;
 
@@ -258,8 +257,8 @@ export default function Booking() {
                         <label className="text-sm font-bold text-ink-primary mb-3 block">Ticket Type</label>
                         <div className="grid sm:grid-cols-2 gap-4">
                           {[
-                            { type: 'General', subtitle: 'Standard festival entry', price: PRICING.General },
-                            { type: 'VIP', subtitle: 'Premium access & backstage', price: PRICING.VIP },
+                            { type: 'General', subtitle: 'Standard festival entry', price: getTicketPrice('General') },
+                            { type: 'VIP', subtitle: 'Premium access & backstage', price: getTicketPrice('VIP') },
                           ].map(({ type, subtitle, price }) => (
                             <button
                               key={type}

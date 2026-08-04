@@ -14,19 +14,19 @@ const SUBJECTS = [
 const CONTACT_INFO = [
   {
     label: 'Venue',
-    value: 'Melbourne Showgrounds\nEpsom Road, Ascot Vale VIC 3032',
+    value: 'University Main Campus\nStudent Union Building, Room 204',
   },
   {
     label: 'Dates',
-    value: 'Friday 15 – Sunday 17 August 2026\nGates open from 3PM daily',
+    value: 'Year-Round Semester Events\nCheck schedule for specific dates',
   },
   {
     label: 'Phone',
-    value: '+61 3 9000 0000\nMon–Fri 9AM – 5PM AEST',
+    value: '+1 (555) 123-4567\nMon–Fri 9AM – 5PM',
   },
   {
     label: 'Email',
-    value: 'info@festivalhub.com.au',
+    value: 'events@campusfestivalhub.edu',
   },
 ];
 

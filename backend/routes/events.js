@@ -60,15 +60,15 @@ router.get('/:id', async (req, res) => {
  * @access  Admin
  */
 router.post('/', requireAdmin, async (req, res) => {
-  const { title, description, stage, event_date, start_time, end_time, category, image_url, tickets_available } = req.body;
+  const { title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
   if (!title || !event_date || !start_time) {
     return res.status(400).json({ error: 'title, event_date, and start_time are required' });
   }
   try {
     const [result] = await db.query(
-      `INSERT INTO events (title, description, stage, event_date, start_time, end_time, category, image_url, tickets_available)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, description, stage, event_date, start_time, end_time, category, image_url, tickets_available ?? 100]
+      `INSERT INTO events (title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price || 0, vip_price || 0, tickets_available ?? 100]
     );
     res.status(201).json({ message: 'Event created successfully', id: result.insertId });
   } catch (err) {
@@ -82,12 +82,12 @@ router.post('/', requireAdmin, async (req, res) => {
  * @access  Admin
  */
 router.put('/:id', requireAdmin, async (req, res) => {
-  const { title, description, stage, event_date, start_time, end_time, category, image_url, tickets_available } = req.body;
+  const { title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
   try {
     const [result] = await db.query(
       `UPDATE events SET title=?, description=?, stage=?, event_date=?, start_time=?, end_time=?,
-       category=?, image_url=?, tickets_available=? WHERE id=?`,
-      [title, description, stage, event_date, start_time, end_time, category, image_url, tickets_available, req.params.id]
+       category=?, image_url=?, is_free=?, general_price=?, vip_price=?, tickets_available=? WHERE id=?`,
+      [title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price || 0, vip_price || 0, tickets_available, req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Event not found' });
     res.json({ message: 'Event updated successfully' });

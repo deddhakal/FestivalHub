@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getEvents, getVendors, getAnnouncements } from '../services/api';
 import { LoadingSpinner } from '../components/UI';
+import { motion } from 'framer-motion';
+import { Utensils, Coffee, ShoppingBag, Map, Megaphone, MapPin, Calendar, Clock, Ticket } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────────────── */
 function formatDate(dateStr) {
@@ -20,6 +22,22 @@ const CATEGORY_BADGE = {
   Acoustic:   'badge-gold',     Family: 'badge-sky',
   Ceremony:   'badge-coral',    Wellness: 'badge-mint',
 };
+
+// Use Unsplash source API for relevant category images
+const CATEGORY_IMAGES = {
+  Electronic: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80',
+  Pop:        'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=600&q=80',
+  Rock:       'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=600&q=80',
+  Jazz:       'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&q=80',
+  Reggae:     'https://images.unsplash.com/photo-1440407876336-54a8b792bfe8?w=600&q=80',
+  Dance:      'https://images.unsplash.com/photo-1547153760-18fc86324498?w=600&q=80',
+  Acoustic:   'https://images.unsplash.com/photo-1510915361894-faa8b2d15328?w=600&q=80',
+  Family:     'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=600&q=80',
+  Ceremony:   'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&q=80',
+  Wellness:   'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80',
+};
+
+const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600&q=80';
 
 const ANNOUNCEMENT_STYLES = {
   warning: { bar: 'bg-amber-500',  text: 'text-amber-400', label: 'Warning' },
@@ -42,7 +60,7 @@ const TICKER_ITEMS = [
 function Ticker() {
   const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
   return (
-    <div className="overflow-hidden border-y border-surface-border bg-surface-1/40 py-2.5 select-none">
+    <div className="overflow-hidden border-y border-surface-border bg-surface-1/40 py-2.5 select-none relative z-20 shadow-soft backdrop-blur-md">
       <div className="flex gap-0 animate-ticker whitespace-nowrap" style={{ width: 'max-content' }}>
         {items.map((item, i) => (
           <span key={i} className="inline-flex items-center gap-6 px-6 text-sm font-bold text-ink-tertiary uppercase tracking-widest">
@@ -60,45 +78,70 @@ function EventCard({ event, index }) {
   const low  = event.tickets_available < 30;
   const sold = event.tickets_available === 0;
   const badgeClass = CATEGORY_BADGE[event.category] || 'badge-default';
-
-  // For visual flair, we assign a solid color banner based on index
-  const banners = ['bg-coral-100', 'bg-sky-100', 'bg-gold-100', 'bg-lavender-100', 'bg-mint-100'];
-  const bannerColor = banners[index % banners.length];
+  
+  const imageUrl = event.image_url || CATEGORY_IMAGES[event.category] || DEFAULT_EVENT_IMAGE;
 
   return (
-    <Link
-      to={`/events/${event.id}`}
-      className="card-interactive group block animate-fade-in flex flex-col"
-      style={{ animationDelay: `${index * 60}ms` }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
     >
-      <div className={`h-24 w-full ${bannerColor} shrink-0`} />
-      <div className="p-5 flex flex-col gap-3 flex-1">
-        {/* Category + tickets */}
-        <div className="flex items-center justify-between">
-          <span className={badgeClass}>
-            {event.category}
-          </span>
-          {sold ? (
-            <span className="badge badge-coral">Sold Out</span>
-          ) : low ? (
-            <span className="badge badge-gold">Few Left</span>
-          ) : (
-            <span className="text-xs font-semibold text-ink-tertiary">{event.tickets_available} left</span>
-          )}
+      <Link
+        to={`/events/${event.id}`}
+        className="card group block flex flex-col h-full bg-white transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-coral-500/10 border border-surface-border overflow-hidden"
+      >
+        <div className="h-48 w-full shrink-0 relative overflow-hidden">
+          <img 
+            src={imageUrl} 
+            alt={event.title} 
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+          
+          <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+            <span className={`badge ${badgeClass} shadow-soft backdrop-blur-md bg-white/90`}>
+              {event.category}
+            </span>
+            {sold ? (
+              <span className="badge badge-coral shadow-soft bg-white/90">Sold Out</span>
+            ) : low ? (
+              <span className="badge badge-gold shadow-soft bg-white/90">Few Left</span>
+            ) : (
+              <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
+                <Ticket className="w-3 h-3 inline mr-1" />
+                {event.tickets_available}
+              </span>
+            )}
+          </div>
         </div>
+        
+        <div className="p-5 flex flex-col gap-3 flex-1">
+          <h3 className="font-display text-xl text-ink-primary font-bold leading-snug group-hover:text-coral-500 transition-colors duration-200 line-clamp-2">
+            {event.title}
+          </h3>
 
-        {/* Title */}
-        <h3 className="font-display text-lg text-ink-primary font-bold leading-snug group-hover:text-coral-500 transition-colors duration-200 line-clamp-2 mt-1">
-          {event.title}
-        </h3>
-
-        {/* Meta row */}
-        <div className="flex flex-col gap-1 mt-auto pt-4 border-t border-surface-border">
-          <span className="text-sm font-semibold text-ink-secondary">📍 {event.stage}</span>
-          <span className="text-sm text-ink-tertiary">📅 {formatDate(event.event_date)} • {formatTime(event.start_time)}</span>
+          <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-surface-border">
+            <div className="flex items-center gap-2 text-sm font-semibold text-ink-secondary">
+              <MapPin className="w-4 h-4 text-coral-500" />
+              <span className="truncate">{event.stage}</span>
+            </div>
+            <div className="flex items-center gap-4 text-sm text-ink-tertiary">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4" />
+                <span>{formatDate(event.event_date)}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4" />
+                <span>{formatTime(event.start_time)}</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -106,12 +149,12 @@ function EventCard({ event, index }) {
 function AnnouncementStrip({ ann }) {
   const style = ANNOUNCEMENT_STYLES[ann.type] || ANNOUNCEMENT_STYLES.info;
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-surface-border last:border-0">
-      <div className={`w-1 h-full min-h-4 rounded-full shrink-0 mt-0.5 ${style.bar}`} />
+    <div className="flex items-start gap-3 py-3 border-b border-surface-border last:border-0 hover:bg-surface-2/50 p-2 rounded-xl transition-colors">
+      <div className={`w-1 h-full min-h-6 rounded-full shrink-0 mt-0.5 ${style.bar}`} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className={`text-2xs font-semibold uppercase tracking-wider ${style.text}`}>{style.label}</span>
-          <span className="text-2xs text-ink-tertiary">{ann.title}</span>
+          <span className={`text-2xs font-bold uppercase tracking-wider ${style.text}`}>{style.label}</span>
+          <span className="text-2xs text-ink-tertiary font-medium">{ann.title}</span>
         </div>
         <p className="text-xs text-ink-secondary line-clamp-1">{ann.content}</p>
       </div>
@@ -121,10 +164,14 @@ function AnnouncementStrip({ ann }) {
 
 /* ── Vendor pill ─────────────────────────────────────────────── */
 const VENDOR_ICONS = {
-  Food: '⬡', Drinks: '⬡', Merchandise: '⬡', Attraction: '⬡',
+  Food: Utensils, Drinks: Coffee, Merchandise: ShoppingBag, Attraction: Map,
 };
-const VENDOR_LABELS = {
-  Food: 'Food', Drinks: 'Drinks', Merchandise: 'Merch', Attraction: 'Attractions',
+
+const VENDOR_IMAGES = {
+  Food: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&q=80',
+  Drinks: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200&q=80',
+  Merchandise: 'https://images.unsplash.com/photo-1520006403909-838d6b92c22e?w=200&q=80',
+  Attraction: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=200&q=80',
 };
 
 /* ── Main component ──────────────────────────────────────────── */
@@ -138,7 +185,7 @@ export default function Home() {
     Promise.all([getEvents(), getVendors(), getAnnouncements()])
       .then(([evRes, venRes, annRes]) => {
         setEvents(evRes.data.slice(0, 6));
-        setVendors(venRes.data.slice(0, 8));
+        setVendors(venRes.data.slice(0, 4));
         setAnnouncements(annRes.data.slice(0, 4));
       })
       .catch(console.error)
@@ -146,69 +193,85 @@ export default function Home() {
   }, []);
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-surface-0">
       <LoadingSpinner text="Loading festival info..." />
     </div>
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-surface-0 overflow-hidden">
 
       {/* ─── Hero ─────────────────────────────────────────────── */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-4 md:px-6 overflow-hidden">
-        {/* Decorative Floating Elements */}
-        <div className="absolute top-[15%] left-[5%] text-4xl animate-float-slow select-none opacity-80" aria-hidden>🌸</div>
-        <div className="absolute top-[10%] right-[10%] text-5xl animate-float-med select-none opacity-70" aria-hidden>🎈</div>
-        <div className="absolute bottom-[20%] left-[15%] text-3xl animate-float-fast select-none opacity-60" aria-hidden>✨</div>
-        <div className="absolute bottom-[10%] right-[5%] text-4xl animate-float-med select-none opacity-80" aria-hidden>🎊</div>
-        
-        {/* Soft Background Blob */}
-        <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-coral-100/30 via-transparent to-sky-100/30 pointer-events-none" aria-hidden />
+      <section className="relative min-h-[90vh] flex items-center pt-20 pb-20 px-4 md:px-6 overflow-hidden">
+        {/* Background Image & Overlay */}
+        <div className="absolute inset-0 z-0 bg-surface-0">
+          <motion.img 
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 10, ease: "easeOut" }}
+            src="https://images.unsplash.com/photo-1540039155733-d76e6c4849ec?q=80&w=2500" 
+            alt="Festival crowd" 
+            className="w-full h-full object-cover object-center opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-coral-50/50 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
+        </div>
 
-        <div className="max-w-7xl mx-auto relative z-10 text-center">
-          <div className="max-w-3xl mx-auto animate-slide-up">
-
-            {/* Event badge */}
-            <div className="inline-flex items-center gap-2 mb-6 bg-white px-4 py-1.5 rounded-full shadow-soft border border-surface-border">
-              <span className="text-xl">🎓</span>
-              <span className="text-sm font-bold text-ink-secondary">Discover Campus Life</span>
-            </div>
-
+        <div className="max-w-7xl mx-auto relative z-10 w-full">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-3xl"
+          >
+      
             {/* Main heading */}
-            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold text-ink-primary leading-[1.15] tracking-tight mb-6">
+            <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold text-ink-primary leading-[1.05] tracking-tight mb-8">
               Celebrate Every
               <br />
-              <span className="text-coral-500">Campus Moment</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-coral-500 to-gold-500">
+                Campus Moment
+              </span>
             </h1>
 
-            <p className="text-lg md:text-xl text-ink-secondary leading-relaxed max-w-2xl mx-auto mb-10 font-medium text-balance">
+            <p className="text-lg md:text-xl text-ink-secondary leading-relaxed max-w-2xl mb-12 font-medium text-balance">
               Discover festivals, hackathons, concerts, workshops, and unforgettable memories curated just for you.
             </p>
 
-            <div className="flex flex-wrap gap-3">
-              <Link to="/booking" className="btn-primary btn-lg">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="flex flex-wrap gap-4"
+            >
+              <Link to="/booking" className="btn-primary btn-lg shadow-coral-500/30 shadow-lg text-lg px-10">
                 Get Tickets
               </Link>
-              <Link to="/events" className="btn-secondary btn-lg">
+              <Link to="/events" className="btn-secondary btn-lg bg-white/80 text-ink-primary border-surface-border hover:bg-white hover:border-ink-tertiary backdrop-blur-sm text-lg px-10">
                 View Schedule
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Stats row */}
-          <div className="mt-16 pt-10 border-t border-surface-border grid grid-cols-2 sm:grid-cols-4 gap-6 md:gap-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="mt-20 pt-10 border-t border-surface-border grid grid-cols-2 sm:grid-cols-4 gap-8 md:gap-12"
+          >
             {[
               { value: '25+',  label: 'Active Clubs' },
               { value: '100+', label: 'Events Yearly' },
               { value: '5k+',  label: 'Students' },
               { value: '1',    label: 'Community' },
             ].map(({ value, label }) => (
-              <div key={label} className="text-center">
+              <div key={label} className="text-left">
                 <div className="font-display text-4xl md:text-5xl text-coral-500 font-bold mb-2">{value}</div>
-                <div className="text-sm font-bold text-ink-secondary tracking-widest uppercase">{label}</div>
+                <div className="text-xs font-bold text-ink-secondary tracking-widest uppercase">{label}</div>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -216,82 +279,129 @@ export default function Home() {
       <Ticker />
 
       {/* ─── Main content grid ────────────────────────────────── */}
-      <section className="section">
-        <div className="container">
-          <div className="grid lg:grid-cols-3 gap-8 xl:gap-12">
+      <section className="section bg-surface-0 relative">
+        {/* Soft background decor */}
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-coral-100/40 via-transparent to-transparent pointer-events-none" />
+        
+        <div className="container relative z-10">
+          <div className="grid lg:grid-cols-3 gap-10 xl:gap-14">
 
             {/* Left: Events ─────────────────────────────────── */}
             <div className="lg:col-span-2">
-              <div className="flex items-end justify-between mb-6">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="flex items-end justify-between mb-8"
+              >
                 <div>
-                  <p className="eyebrow mb-1">Lineup</p>
-                  <h2 className="font-display text-2xl md:text-3xl text-ink-primary">Upcoming Performances</h2>
+                  <p className="eyebrow text-coral-500 mb-2">Lineup</p>
+                  <h2 className="font-display text-3xl md:text-4xl text-ink-primary">Upcoming Events</h2>
                 </div>
-                <Link to="/events" className="btn-ghost btn-sm text-ink-secondary hover:text-ink-primary shrink-0">
-                  All events →
+                <Link to="/events" className="btn-ghost btn-md text-ink-secondary hover:text-coral-500 shrink-0 hidden sm:inline-flex">
+                  Explore all events →
                 </Link>
-              </div>
+              </motion.div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {events.map((ev, i) => <EventCard key={ev.id} event={ev} index={i} />)}
               </div>
 
-              <div className="mt-4 sm:hidden">
-                <Link to="/events" className="btn-secondary btn-md w-full">View full schedule</Link>
+              <div className="mt-8 sm:hidden">
+                <Link to="/events" className="btn-secondary btn-md w-full">Explore all events</Link>
               </div>
             </div>
 
             {/* Right sidebar ─────────────────────────────────── */}
-            <div className="space-y-6">
+            <div className="space-y-8">
 
               {/* Announcements card */}
               {announcements.length > 0 && (
-                <div className="card">
-                  <div className="p-4 border-b border-surface-border flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-coral-500 animate-pulse" />
-                      <span className="text-xs font-bold uppercase tracking-widest text-ink-secondary">Live Updates</span>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="card bg-white border border-surface-border shadow-md"
+                >
+                  <div className="p-5 border-b border-surface-border flex items-center justify-between bg-surface-1/50">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <span className="absolute -inset-1 rounded-full bg-coral-500 opacity-30 animate-ping" />
+                        <span className="relative block w-2.5 h-2.5 rounded-full bg-coral-500" />
+                      </div>
+                      <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Live Updates</span>
                     </div>
-                    <Link to="/announcements" className="text-2xs text-ink-tertiary hover:text-ink-secondary transition-colors">
-                      All →
+                    <Link to="/announcements" className="text-xs font-semibold text-ink-tertiary hover:text-coral-500 transition-colors">
+                      View all
                     </Link>
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 space-y-1">
                     {announcements.map(ann => (
                       <AnnouncementStrip key={ann.id} ann={ann} />
                     ))}
                   </div>
-                </div>
+                </motion.div>
               )}
 
               {/* Vendors snapshot */}
-              <div className="card p-4">
-                <p className="eyebrow mb-4">Food & Vendors</p>
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  {vendors.slice(0, 6).map(v => (
-                    <div key={v.id} className="flex items-center gap-2 p-2.5 rounded-2xl bg-surface-2 border border-surface-border transition-transform hover:-translate-y-0.5">
-                      <div className="text-xl shrink-0">{VENDOR_ICONS[v.category] || '⛺'}</div>
-                      <div className="min-w-0">
-                        <p className="text-xs text-ink-primary font-medium truncate">{v.name}</p>
-                        <p className="text-2xs text-ink-tertiary">{v.category}</p>
-                      </div>
-                    </div>
-                  ))}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="card p-6 bg-white border border-surface-border shadow-md"
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <p className="eyebrow text-gold-500 mb-0">Food & Vendors</p>
+                  <Utensils className="w-5 h-5 text-gold-500/50" />
                 </div>
-                <Link to="/food-attractions" className="btn-secondary btn-sm w-full text-center">
+                <div className="grid grid-cols-1 gap-3 mb-6">
+                  {vendors.slice(0, 4).map(v => {
+                    const Icon = VENDOR_ICONS[v.category] || Utensils;
+                    const vImage = VENDOR_IMAGES[v.category] || VENDOR_IMAGES.Food;
+                    return (
+                      <Link key={v.id} to="/food-attractions" className="group flex items-center gap-4 p-3 rounded-2xl bg-surface-1 hover:bg-white border border-transparent hover:border-surface-border hover:shadow-md transition-all">
+                        <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm relative">
+                           <img src={vImage} alt={v.category} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+                           <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-ink-primary font-bold truncate group-hover:text-coral-500 transition-colors">{v.name}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <Icon className="w-3 h-3 text-ink-tertiary" />
+                            <p className="text-xs text-ink-secondary">{v.category}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+                <Link to="/food-attractions" className="btn-secondary btn-md w-full bg-surface-1 border-transparent hover:border-surface-border">
                   Browse all vendors
                 </Link>
-              </div>
+              </motion.div>
 
               {/* Map CTA */}
-              <div className="card p-5 bg-surface-2">
-                <p className="eyebrow mb-2">Navigate the festival</p>
-                <h3 className="font-display text-xl text-ink-primary mb-2">Interactive Map</h3>
-                <p className="text-xs text-ink-secondary leading-relaxed mb-4">
-                  Find stages, food courts, merch, medical and parking — all on one map.
-                </p>
-                <Link to="/map" className="btn-secondary btn-sm w-full">Open Map</Link>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="card p-8 bg-gradient-to-br from-sky-50 to-white border border-sky-100 shadow-md relative overflow-hidden group"
+              >
+                <Map className="absolute -bottom-4 -right-4 w-32 h-32 text-sky-200/50 group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-700" />
+                <div className="relative z-10">
+                  <p className="eyebrow text-sky-500 mb-2">Navigate the festival</p>
+                  <h3 className="font-display text-2xl text-ink-primary mb-3">Interactive Map</h3>
+                  <p className="text-sm text-ink-secondary leading-relaxed mb-6 font-medium">
+                    Find stages, food courts, merch, medical and parking — all effortlessly on one map.
+                  </p>
+                  <Link to="/map" className="btn-secondary btn-md w-full border-sky-200 hover:border-sky-300 hover:text-sky-600 bg-white">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    Open Map
+                  </Link>
+                </div>
+              </motion.div>
 
             </div>
           </div>
@@ -299,22 +409,39 @@ export default function Home() {
       </section>
 
       {/* ─── Booking CTA ──────────────────────────────────────── */}
-      <section className="section-sm px-4 md:px-6 relative overflow-hidden">
+      <section className="section px-4 md:px-6 relative overflow-hidden bg-surface-0">
         <div className="container">
-          <div className="bg-coral-100 rounded-[2rem] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 shadow-soft relative overflow-hidden text-center md:text-left">
-            <div className="relative z-10">
-              <span className="badge badge-coral mb-4 text-sm px-4 py-1.5">Don't miss out</span>
-              <h2 className="font-display text-3xl md:text-5xl text-coral-600 mb-4 font-bold">Secure your spot now</h2>
-              <p className="text-lg text-coral-500/80 font-semibold">Join thousands of students creating unforgettable memories.</p>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="bg-coral-500 rounded-[2.5rem] p-12 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 shadow-2xl relative overflow-hidden text-center md:text-left"
+          >
+            {/* Decorative background for CTA */}
+            <div className="absolute inset-0 z-0">
+               <img src="https://images.unsplash.com/photo-1470229722913-7c092dbbba3a?w=1200&q=80" alt="Concert" className="w-full h-full object-cover opacity-20 mix-blend-overlay" loading="lazy" />
+               <div className="absolute inset-0 bg-gradient-to-r from-coral-500 via-coral-500/90 to-transparent" />
             </div>
-            <div className="relative z-10 flex flex-wrap justify-center gap-4 shrink-0">
-              <Link to="/booking" className="btn-primary btn-lg shadow-lift">Book Tickets Now</Link>
-              <Link to="/contact" className="btn-secondary btn-lg bg-white/50 border-coral-200 text-coral-600 hover:border-coral-300">Get Help</Link>
+
+            <div className="relative z-10 max-w-2xl">
+              <span className="badge bg-white/20 text-white border border-white/30 mb-6 text-sm px-5 py-2 backdrop-blur-sm">Don't miss out</span>
+              <h2 className="font-display text-4xl md:text-6xl text-white mb-6 font-bold leading-tight">Secure your spot <br className="hidden md:block"/> at the next big event</h2>
+              <p className="text-xl text-white/90 font-medium">Join thousands of students creating unforgettable memories.</p>
             </div>
-          </div>
+            <div className="relative z-10 flex flex-col sm:flex-row justify-center gap-5 shrink-0 w-full md:w-auto">
+              <Link to="/booking" className="btn-primary btn-lg shadow-lift bg-white text-coral-600 hover:bg-surface-0 w-full sm:w-auto">
+                <Ticket className="w-5 h-5 mr-1" />
+                Book Tickets Now
+              </Link>
+              <Link to="/contact" className="btn-secondary btn-lg bg-coral-600/30 border-coral-400 text-white hover:bg-coral-600/50 hover:border-coral-300 backdrop-blur-sm w-full sm:w-auto">
+                Get Help
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 
     </div>
   );
 }
+
