@@ -1,0 +1,429 @@
+{
+  "info": {
+    "name": "Festival Hub API",
+    "_postman_id": "festivalhub-api-collection-v1",
+    "description": "Complete REST API collection for the Festival Hub web application.\n\nBase URL: http://localhost:5000/api\n\n**Admin Login Required**: POST /admin/login first, then admin-protected routes work via session cookie.\n\nDefault admin credentials:\n- Username: admin\n- Password: admin123",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/",
+            "description": "Verify the API server is running."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Authentication",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/admin/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "description": "Log in as admin. Sets a session cookie used by all admin-protected routes."
+          }
+        },
+        {
+          "name": "Check Admin Session",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/admin/me",
+            "description": "Check if admin session is currently active."
+          }
+        },
+        {
+          "name": "Admin Logout",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:5000/api/admin/logout",
+            "description": "Destroy the current admin session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:5000/api/events",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "events"]
+            },
+            "description": "Returns all festival events ordered by date and time.\n\nOptional query params:\n- ?stage=Main Stage\n- ?date=2026-08-15\n- ?category=Electronic\n- ?search=DJ"
+          }
+        },
+        {
+          "name": "Get Events - Filter by Stage",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/events?stage=Main Stage",
+            "description": "Returns events on the Main Stage only."
+          }
+        },
+        {
+          "name": "Get Events - Filter by Date",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/events?date=2026-08-15",
+            "description": "Returns all events on Friday Aug 15."
+          }
+        },
+        {
+          "name": "Get Events - Search",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/events?search=DJ",
+            "description": "Returns events whose title, description or stage contains 'DJ'."
+          }
+        },
+        {
+          "name": "Get Single Event",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/events/1",
+            "description": "Returns event with ID 1."
+          }
+        },
+        {
+          "name": "Create Event (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test DJ Set\",\n  \"description\": \"A test electronic music performance.\",\n  \"stage\": \"Dance Arena\",\n  \"event_date\": \"2026-08-16\",\n  \"start_time\": \"21:00\",\n  \"end_time\": \"23:00\",\n  \"category\": \"Electronic\",\n  \"tickets_available\": 200\n}"
+            },
+            "description": "Creates a new event. Requires admin session."
+          }
+        },
+        {
+          "name": "Update Event (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/events/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Opening Ceremony (Updated)\",\n  \"description\": \"Updated description.\",\n  \"stage\": \"Main Stage\",\n  \"event_date\": \"2026-08-15\",\n  \"start_time\": \"17:00\",\n  \"end_time\": \"18:30\",\n  \"category\": \"Ceremony\",\n  \"tickets_available\": 490\n}"
+            },
+            "description": "Updates event with ID 1. Requires admin session."
+          }
+        },
+        {
+          "name": "Delete Event (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5000/api/events/15",
+            "description": "Deletes event with ID 15. Requires admin session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Booking (Visitor)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/bookings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": 2,\n  \"visitor_name\": \"Jane Smith\",\n  \"visitor_email\": \"jane.smith@example.com\",\n  \"ticket_type\": \"General\",\n  \"quantity\": 2\n}"
+            },
+            "description": "Books tickets for an event. No auth required. Returns booking reference (e.g. FH-00009)."
+          }
+        },
+        {
+          "name": "Create VIP Booking (Visitor)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/bookings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": 9,\n  \"visitor_name\": \"Alex Johnson\",\n  \"visitor_email\": \"alex.j@example.com\",\n  \"ticket_type\": \"VIP\",\n  \"quantity\": 1\n}"
+            },
+            "description": "Books a VIP ticket."
+          }
+        },
+        {
+          "name": "Get Booking by Reference",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/bookings/FH-00001",
+            "description": "Retrieves a booking by its reference number. Public access for receipt lookup."
+          }
+        },
+        {
+          "name": "Get All Bookings (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/bookings",
+            "description": "Returns all bookings with event details. Requires admin session."
+          }
+        },
+        {
+          "name": "Cancel Booking (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5000/api/bookings/1",
+            "description": "Cancels booking ID 1 and restores ticket availability. Requires admin session."
+          }
+        },
+        {
+          "name": "Booking - Insufficient Tickets (Error Test)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/bookings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": 1,\n  \"visitor_name\": \"Test User\",\n  \"visitor_email\": \"test@example.com\",\n  \"ticket_type\": \"General\",\n  \"quantity\": 9999\n}"
+            },
+            "description": "Should return 400 - Not enough tickets available."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendors",
+      "item": [
+        {
+          "name": "Get All Vendors",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/vendors",
+            "description": "Returns all vendors grouped by category."
+          }
+        },
+        {
+          "name": "Get Vendors - Food Only",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/vendors?category=Food",
+            "description": "Returns food stall vendors only."
+          }
+        },
+        {
+          "name": "Get Vendors - Attractions Only",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/vendors?category=Attraction",
+            "description": "Returns attraction vendors only."
+          }
+        },
+        {
+          "name": "Get Single Vendor",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/vendors/1",
+            "description": "Returns vendor with ID 1."
+          }
+        },
+        {
+          "name": "Create Vendor (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/vendors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sushi Bar\",\n  \"description\": \"Fresh Japanese sushi rolls and noodles.\",\n  \"category\": \"Food\",\n  \"location\": \"Food Court - Stall C1\",\n  \"is_active\": 1\n}"
+            },
+            "description": "Creates a new vendor. Requires admin session."
+          }
+        },
+        {
+          "name": "Update Vendor (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/vendors/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Burger House (Updated)\",\n  \"description\": \"Updated description.\",\n  \"category\": \"Food\",\n  \"location\": \"Food Court - Stall A1\",\n  \"is_active\": 1\n}"
+            },
+            "description": "Updates vendor ID 1. Requires admin session."
+          }
+        },
+        {
+          "name": "Delete Vendor (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5000/api/vendors/16",
+            "description": "Deletes vendor ID 16. Requires admin session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Announcements",
+      "item": [
+        {
+          "name": "Get All Announcements",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/announcements",
+            "description": "Returns all announcements newest first."
+          }
+        },
+        {
+          "name": "Get Single Announcement",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/announcements/1",
+            "description": "Returns announcement with ID 1."
+          }
+        },
+        {
+          "name": "Create Announcement (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/announcements",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Stage Delay Notice\",\n  \"content\": \"The Main Stage performance will be delayed by 20 minutes due to sound checks.\",\n  \"type\": \"warning\"\n}"
+            },
+            "description": "Creates a new announcement. type: info | warning | alert | success. Requires admin session."
+          }
+        },
+        {
+          "name": "Update Announcement (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/announcements/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Welcome to Festival Hub 2026! (Updated)\",\n  \"content\": \"Updated welcome message for the festival.\",\n  \"type\": \"success\"\n}"
+            },
+            "description": "Updates announcement ID 1. Requires admin session."
+          }
+        },
+        {
+          "name": "Delete Announcement (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5000/api/announcements/9",
+            "description": "Deletes announcement ID 9. Requires admin session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "item": [
+        {
+          "name": "Submit Contact Message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/contact",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"subject\": \"Parking Question\",\n  \"message\": \"Is there accessible parking available near Gate A?\"\n}"
+            },
+            "description": "Submits a contact form message. No auth required."
+          }
+        },
+        {
+          "name": "Submit Contact - Missing Fields (Error Test)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/contact",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\"\n}"
+            },
+            "description": "Should return 400 - email and message are required."
+          }
+        },
+        {
+          "name": "Get All Messages (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/contact",
+            "description": "Returns all contact messages. Requires admin session."
+          }
+        },
+        {
+          "name": "Delete Message (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5000/api/contact/1",
+            "description": "Deletes contact message ID 1. Requires admin session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Stats (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/dashboard/stats",
+            "description": "Returns total counts (events, bookings, vendors, messages, announcements), recent bookings, and upcoming events. Requires admin session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "Access Admin Route Without Login",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/dashboard/stats",
+            "description": "Should return 401 Unauthorised when no admin session exists."
+          }
+        },
+        {
+          "name": "Get Non-Existent Event",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/events/9999",
+            "description": "Should return 404 Event not found."
+          }
+        },
+        {
+          "name": "Create Event Without Required Fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:5000/api/events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Missing title and date\"\n}"
+            },
+            "description": "Should return 400 - title, event_date, and start_time are required."
+          }
+        }
+      ]
+    }
+  ]
+}

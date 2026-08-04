@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ─────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-surface-0 text-ink-primary font-sans antialiased;
+    min-height: 100dvh;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: theme('colors.brand.700');
+    color: theme('colors.ink.primary');
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: theme('colors.surface.0'); }
+  ::-webkit-scrollbar-thumb { background: theme('colors.surface.muted'); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: theme('colors.ink.tertiary'); }
+
+  /* Focus */
+  :focus-visible {
+    outline: 2px solid theme('colors.brand.500');
+    outline-offset: 2px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display leading-tight;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* ── Components ───────────────────────────────────────────────── */
+@layer components {
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-sans font-semibold
+           rounded leading-none whitespace-nowrap transition-all duration-150
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-0
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-sm  { @apply btn text-sm px-3.5 py-2; }
+  .btn-md  { @apply btn text-sm px-5 py-2.5; }
+  .btn-lg  { @apply btn text-base px-6 py-3; }
+
+  .btn-primary {
+    @apply btn-md bg-brand-500 text-ink-inverse
+           hover:bg-brand-400 active:bg-brand-600;
+  }
+
+  .btn-secondary {
+    @apply btn-md bg-transparent border border-surface-border text-ink-secondary
+           hover:border-surface-muted hover:text-ink-primary
+           active:bg-surface-1;
+  }
+
+  .btn-ghost {
+    @apply btn-md bg-transparent text-ink-secondary
+           hover:text-ink-primary hover:bg-surface-1;
+  }
+
+  .btn-accent {
+    @apply btn-md bg-ink-primary text-ink-inverse
+           hover:bg-brand-100 active:bg-brand-200;
+  }
+
+  .btn-danger {
+    @apply btn-md bg-signal-danger text-white
+           hover:brightness-110;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-surface-1 border border-surface-border rounded-xl overflow-hidden;
+  }
+
+  .card-interactive {
+    @apply card transition-all duration-200
+           hover:border-surface-muted hover:bg-surface-2;
+  }
+
+  /* Form */
+  .field-label {
+    @apply block text-xs font-semibold uppercase tracking-widest text-ink-tertiary mb-1.5;
+  }
+
+  .field-input {
+    @apply w-full bg-surface-1 border border-surface-border rounded
+           text-ink-primary placeholder-ink-tertiary text-sm
+           px-3.5 py-2.5
+           transition-colors duration-150
+           focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500;
+  }
+
+  .field-input-error {
+    @apply field-input border-signal-danger focus:border-signal-danger focus:ring-signal-danger;
+  }
+
+  .field-error {
+    @apply text-signal-danger text-xs mt-1;
+  }
+
+  /* Chip / badge */
+  .chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-semibold uppercase tracking-wider;
+  }
+
+  .chip-default   { @apply chip bg-surface-2 text-ink-secondary border border-surface-border; }
+  .chip-brand     { @apply chip bg-brand-900/40 text-brand-400 border border-brand-800/40; }
+  .chip-info      { @apply chip bg-blue-950/60 text-blue-400 border border-blue-900/40; }
+  .chip-warning   { @apply chip bg-amber-950/60 text-amber-400 border border-amber-900/40; }
+  .chip-danger    { @apply chip bg-red-950/60 text-red-400 border border-red-900/40; }
+  .chip-success   { @apply chip bg-green-950/60 text-green-400 border border-green-900/40; }
+
+  /* Section layout */
+  .section     { @apply py-16 md:py-24 px-4 md:px-6; }
+  .section-sm  { @apply py-10 md:py-16 px-4 md:px-6; }
+  .container   { @apply max-w-7xl mx-auto; }
+  .container-sm { @apply max-w-3xl mx-auto; }
+
+  .eyebrow {
+    @apply text-2xs font-semibold uppercase tracking-[0.15em] text-ink-tertiary;
+  }
+
+  /* Divider */
+  .divider { @apply border-t border-surface-border; }
+
+  /* Alert bars */
+  .alert-bar {
+    @apply flex items-start gap-3 p-4 rounded border text-sm;
+  }
+
+  .alert-info    { @apply alert-bar bg-blue-950/40 border-blue-900/40 text-blue-300; }
+  .alert-warning { @apply alert-bar bg-amber-950/40 border-amber-900/40 text-amber-300; }
+  .alert-danger  { @apply alert-bar bg-red-950/40 border-red-900/40 text-red-300; }
+  .alert-success { @apply alert-bar bg-green-950/40 border-green-900/40 text-green-300; }
+
+  /* Nav link */
+  .nav-link {
+    @apply text-sm font-medium text-ink-secondary transition-colors duration-150
+           hover:text-ink-primary px-1 py-0.5;
+  }
+  .nav-link-active { @apply nav-link text-ink-primary; }
+
+  /* Table */
+  .data-table { @apply w-full text-sm text-left; }
+  .data-table thead { @apply border-b border-surface-border; }
+  .data-table th { @apply px-4 py-3 text-2xs font-semibold uppercase tracking-widest text-ink-tertiary; }
+  .data-table td { @apply px-4 py-3 text-ink-secondary border-t border-surface-border; }
+  .data-table tbody tr { @apply hover:bg-surface-1/60 transition-colors duration-100; }
+}
+
+/* ── Utilities ─────────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .safe-top     { padding-top: env(safe-area-inset-top); }
+  .safe-bottom  { padding-bottom: env(safe-area-inset-bottom); }
+
+  /* Staggered animation delays */
+  .delay-75   { animation-delay: 75ms; }
+  .delay-100  { animation-delay: 100ms; }
+  .delay-150  { animation-delay: 150ms; }
+  .delay-200  { animation-delay: 200ms; }
+  .delay-300  { animation-delay: 300ms; }
+  .delay-400  { animation-delay: 400ms; }
+  .delay-500  { animation-delay: 500ms; }
+
+  /* Ticket number mono style */
+  .ref-code {
+    @apply font-mono text-brand-400 tracking-widest text-sm font-semibold;
+  }
+}
