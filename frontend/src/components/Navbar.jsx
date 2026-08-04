@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const NAV_ITEMS = [
+  { to: '/',                label: 'Home' },
   { to: '/events',          label: 'Schedule' },
   { to: '/food-attractions',label: 'Food & Vendors' },
   { to: '/map',             label: 'Map' },
@@ -41,7 +42,7 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-surface-0/95 backdrop-blur-xl border-b border-surface-border'
+          ? 'bg-white/95 backdrop-blur-lg border-b border-surface-border shadow-sm'
           : 'bg-transparent'
       }`}
     >
@@ -50,8 +51,8 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 shrink-0 group" aria-label="FestivalHub — Home">
           {/* Wordmark */}
-          <span className="font-display text-lg leading-none text-ink-primary">
-            Festival<span className="text-brand-500">Hub</span>
+          <span className="font-display font-bold text-xl leading-none text-ink-primary">
+            Festival<span className="text-coral-500">Hub</span>
           </span>
           <span className="hidden sm:block text-surface-muted text-sm leading-none">·</span>
           <span className="hidden sm:block text-ink-tertiary text-xs font-medium tracking-wide">2026</span>
@@ -63,8 +64,8 @@ export default function Navbar() {
             <Link
               key={to}
               to={to}
-              className={`nav-link text-sm px-3 py-1.5 rounded transition-colors ${
-                isActive(to) ? 'text-ink-primary' : ''
+              className={`nav-link ${
+                isActive(to) ? 'nav-link-active' : ''
               }`}
             >
               {label}
@@ -102,15 +103,13 @@ export default function Navbar() {
           menuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="bg-surface-0/98 backdrop-blur-xl border-t border-surface-border px-4 pt-4 pb-6 flex flex-col gap-1">
+        <div className="bg-white border-t border-surface-border px-4 pt-4 pb-6 flex flex-col gap-1 shadow-lift">
           {NAV_ITEMS.map(({ to, label }) => (
             <Link
               key={to}
               to={to}
-              className={`px-3 py-2.5 rounded text-sm font-medium transition-colors ${
-                isActive(to)
-                  ? 'bg-surface-1 text-ink-primary'
-                  : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-1/50'
+              className={`nav-link ${
+                isActive(to) ? 'nav-link-active' : ''
               }`}
             >
               {label}
