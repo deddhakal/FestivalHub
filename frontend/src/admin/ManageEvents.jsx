@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getEvents, createEvent, updateEvent, deleteEvent } from '../services/api';
+import { getEvents, createEvent, updateEvent, deleteEvent, uploadImage } from '../services/api';
 import { LoadingSpinner, EmptyState } from '../components/UI';
 
 const BLANK = {
@@ -27,10 +27,20 @@ function Modal({ title, children, onClose }) {
 
 function EventForm({ initial = BLANK, onSave, onCancel, saving }) {
   const [form, setForm] = useState(initial);
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(initial.image_url ? `http://localhost:5000${initial.image_url}` : '');
   const u = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
   return (
-    <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-5">
+    <form onSubmit={e => { e.preventDefault(); onSave(form, imageFile); }} className="space-y-5">
       <div>
         <label className="field-label">Event Title *</label>
         <input className="field-input" placeholder="e.g. Summer Kickoff" value={form.title} onChange={e => u('title', e.target.value)} required />
@@ -38,6 +48,13 @@ function EventForm({ initial = BLANK, onSave, onCancel, saving }) {
       <div>
         <label className="field-label">Description</label>
         <textarea className="field-input resize-none" placeholder="Details about the event..." rows={3} value={form.description} onChange={e => u('description', e.target.value)} />
+      </div>
+      <div>
+        <label className="field-label">Event Image</label>
+        <div className="flex items-center gap-4">
+          {preview && <img src={preview} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-surface-border shrink-0" />}
+          <input type="file" accept="image/*" className="field-input" onChange={handleFileChange} />
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -98,14 +115,23 @@ export default function ManageEvents() {
 
   const flash = (m, type='success') => { setMsg(m); setMsgType(type); setTimeout(() => setMsg(''), 3000); };
 
-  const handleSave = async (form) => {
+  const handleSave = async (form, imageFile) => {
     setSaving(true);
     try {
+      let imageUrl = form.image_url;
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        const res = await uploadImage(formData);
+        imageUrl = res.data.imageUrl;
+      }
+      const payload = { ...form, image_url: imageUrl };
+
       if (modal?.edit) {
-        await updateEvent(modal.edit.id, form);
+        await updateEvent(modal.edit.id, payload);
         flash('Event updated successfully.', 'success');
       } else {
-        await createEvent(form);
+        await createEvent(payload);
         flash('Event created successfully.', 'success');
       }
       setModal(null);
@@ -223,6 +249,7 @@ export default function ManageEvents() {
               start_time: modal.edit.start_time?.slice(0,5) || '',
               end_time: modal.edit.end_time?.slice(0,5) || '',
               category: modal.edit.category, tickets_available: modal.edit.tickets_available,
+              image_url: modal.edit.image_url,
             } : BLANK}
             onSave={handleSave}
             onCancel={() => setModal(null)}
