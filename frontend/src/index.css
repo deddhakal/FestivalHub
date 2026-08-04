@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,300..800;1,6..12,300..800&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&display=swap');
+@import 'leaflet/dist/leaflet.css';
 
 @tailwind base;
 @tailwind components;
@@ -143,6 +144,14 @@
   .data-table th { @apply px-6 py-4 text-xs font-bold text-ink-secondary; }
   .data-table td { @apply px-6 py-4 text-ink-primary border-t border-surface-border; }
   .data-table tbody tr { @apply hover:bg-surface-2 transition-colors duration-150; }
+
+  /* Leaflet Map */
+  .leaflet-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 1.5rem; /* Matches card rounded-3xl */
+    z-index: 10;
+  }
 }
 
 /* ── Utilities ─────────────────────────────────────────────────── */
