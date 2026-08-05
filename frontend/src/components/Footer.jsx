@@ -1,50 +1,61 @@
 import { Link } from 'react-router-dom';
+import { Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const LINKS = {
-  'Experience': [
-    { to: '/events',          label: 'Event Schedule' },
+  'Platform': [
+    { to: '/events',          label: 'Browse Events' },
     { to: '/booking',         label: 'Book Tickets' },
-    { to: '/map',             label: 'Festival Map' },
-    { to: '/food-attractions',label: 'Food & Vendors' },
+    { to: '/admin/login',     label: 'Host an Event' },
+    { to: '/announcements',   label: 'Updates & Alerts' },
   ],
-  'Information': [
-    { to: '/announcements', label: 'Updates & Alerts' },
-    { to: '/contact',       label: 'Contact Us' },
-    { to: '/admin/login',   label: 'Admin' },
+  'Resources': [
+    { to: '/map',             label: 'Venue Maps' },
+    { to: '/food-attractions',label: 'Vendors' },
+    { to: '/contact',         label: 'Help Center' },
+    { to: '/contact',         label: 'Contact Support' },
   ],
+  'Company': [
+    { to: '#', label: 'About Us' },
+    { to: '#', label: 'Careers' },
+    { to: '#', label: 'Privacy Policy' },
+    { to: '#', label: 'Terms of Service' },
+  ]
 };
 
 export default function Footer() {
   return (
-    <footer className="border-t border-surface-border bg-surface-0 mt-20">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+    <footer className="border-t border-surface-border bg-surface-0 mt-20 pt-16 pb-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
 
           {/* Brand column */}
-          <div>
-            <div className="font-display text-xl text-ink-primary mb-3">
+          <div className="lg:col-span-2">
+            <div className="font-display text-2xl text-ink-primary mb-4 font-bold">
               Festival<span className="text-brand-500">Hub</span>
             </div>
-            <p className="text-sm text-ink-tertiary leading-relaxed mb-5">
-              Connecting the campus community through world-class events, hackathons, and culture.
+            <p className="text-sm text-ink-secondary leading-relaxed mb-6 max-w-md">
+              The all-in-one event management platform. Whether you're organizing a local meetup or a massive music festival, we provide the tools you need to succeed.
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-surface-border text-2xs text-ink-tertiary uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-signal-success animate-pulse" />
-              Tickets on sale now
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-surface-border bg-white text-xs text-ink-primary shadow-sm font-medium">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-signal-success opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-signal-success"></span>
+              </span>
+              All systems operational
             </div>
           </div>
 
           {/* Link groups */}
           {Object.entries(LINKS).map(([group, items]) => (
             <div key={group}>
-              <p className="eyebrow mb-4">{group}</p>
-              <ul className="space-y-2.5">
-                {items.map(({ to, label }) => (
-                  <li key={to}>
+              <p className="font-bold text-ink-primary mb-5 tracking-wide">{group}</p>
+              <ul className="space-y-3">
+                {items.map(({ to, label }, i) => (
+                  <li key={i}>
                     <Link
                       to={to}
-                      className="text-sm text-ink-secondary hover:text-ink-primary transition-colors duration-150"
+                      className="text-sm text-ink-secondary hover:text-brand-500 hover:underline underline-offset-4 transition-all duration-200"
                     >
                       {label}
                     </Link>
@@ -56,14 +67,14 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-6 border-t border-surface-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="pt-8 border-t border-surface-border flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-xs text-ink-tertiary">
-            © 2026 Festival Hub Pty Ltd. All rights reserved.
+            © {new Date().getFullYear()} Festival Hub Inc. All rights reserved.
           </div>
-          <div className="flex items-center gap-4 text-xs text-ink-tertiary">
-            <span>University Campus</span>
-            <span className="text-surface-muted">·</span>
-            <span>All Year Round</span>
+          <div className="flex items-center gap-6 text-xs text-ink-tertiary">
+            <a href="#" className="hover:text-ink-primary transition-colors"><Twitter className="w-4 h-4" /></a>
+            <a href="#" className="hover:text-ink-primary transition-colors"><Linkedin className="w-4 h-4" /></a>
+            <a href="#" className="hover:text-ink-primary transition-colors"><Instagram className="w-4 h-4" /></a>
           </div>
         </div>
       </div>

@@ -241,7 +241,7 @@ export default function Events() {
         <div className="py-8 md:py-12 text-center animate-slide-up">
           <h1 className="font-display text-5xl md:text-6xl font-bold text-ink-primary mb-4 tracking-tight">Explore Events</h1>
           <p className="text-ink-secondary text-lg md:text-xl font-medium max-w-2xl mx-auto">
-            Discover performances, workshops, and gatherings happening across campus.
+            Discover performances, workshops, and gatherings happening across the city.
           </p>
         </div>
 
