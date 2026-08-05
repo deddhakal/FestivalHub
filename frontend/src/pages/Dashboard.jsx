@@ -164,12 +164,6 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-0 pt-20">
-      <LoadingSpinner text="Loading dashboard..." />
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-surface-0 pt-24 pb-20">
       {/* ─── Main content grid ────────────────────────────────── */}
@@ -183,7 +177,12 @@ export default function Dashboard() {
             <p className="text-ink-secondary mt-2">Your hub for the festival's upcoming events, updates, and more.</p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-10 xl:gap-14">
+          {loading ? (
+            <div className="py-20">
+              <LoadingSpinner text="Loading dashboard..." />
+            </div>
+          ) : (
+            <div className="grid lg:grid-cols-3 gap-10 xl:gap-14">
 
             {/* Left: Events ─────────────────────────────────── */}
             <div className="lg:col-span-2">

@@ -44,7 +44,11 @@ export default function EventDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="pt-24"><LoadingSpinner /></div>;
+  if (loading) return (
+    <div className="min-h-screen bg-surface-1/30 pt-20 pb-16 flex items-center justify-center">
+      <LoadingSpinner />
+    </div>
+  );
   if (error)   return <div className="pt-24"><ErrorMessage message={error} /></div>;
   if (!event)  return null;
 

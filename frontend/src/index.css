@@ -171,18 +171,20 @@
   }
 
   @keyframes ticker {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-33.333333%, 0, 0); }
   }
   @keyframes ticker-reverse {
-    0% { transform: translateX(-50%); }
-    100% { transform: translateX(0); }
+    0% { transform: translate3d(-33.333333%, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
   }
   .animate-ticker {
     animation: ticker 40s linear infinite;
+    will-change: transform;
   }
   .animate-ticker-reverse {
     animation: ticker-reverse 40s linear infinite;
+    will-change: transform;
   }
 }
 
