@@ -56,55 +56,70 @@ function EventCard({ event, onClick }) {
   const gradientClass = hasImage ? 'bg-surface-2' : `bg-gradient-to-br ${getCategoryGradient(event.category)}`;
 
   return (
-    <div onClick={() => onClick(event)} className="card-interactive group block overflow-hidden cursor-pointer flex flex-col h-full bg-surface-1/50 backdrop-blur-md">
-      {/* Rich Image Header */}
-      <div 
-        className={`h-40 w-full bg-cover bg-center relative transition-transform duration-500 group-hover:scale-105 ${gradientClass}`}
-        style={{ backgroundImage: bgImage }}
-      >
-        {/* Chips top right */}
-        <div className="absolute top-3 right-3 flex gap-2">
-          {sold ? (
-            <span className="chip chip-danger shadow-sm backdrop-blur-md bg-red-500/90 text-white border-0">Sold Out</span>
-          ) : low ? (
-            <span className="chip chip-warning shadow-sm backdrop-blur-md bg-amber-500/90 text-white border-0">Few Left</span>
-          ) : null}
+    <div onClick={() => onClick(event)} className="group relative block overflow-hidden cursor-pointer flex flex-col h-full bg-surface-0 rounded-3xl border border-surface-border/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-2">
+      {/* Decorative Blur Element */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-[50px] group-hover:bg-coral-500/20 transition-colors duration-500"></div>
+
+      {/* Modern Image Header */}
+      <div className="relative h-56 w-full overflow-hidden p-3 z-10">
+        <div 
+          className={`relative w-full h-full rounded-2xl overflow-hidden ${gradientClass}`}
+        >
+          <div 
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
+            style={{ backgroundImage: bgImage }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+          
+          {/* Top Chips */}
+          <div className="absolute top-3 right-3 flex gap-2 z-20">
+            {sold ? (
+              <span className="backdrop-blur-md bg-red-500/80 text-white font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full shadow-sm">Sold Out</span>
+            ) : low ? (
+              <span className="backdrop-blur-md bg-amber-500/80 text-white font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full shadow-sm">Few Left</span>
+            ) : null}
+          </div>
+
+          {/* Bottom Left Category inside Image */}
+          <div className="absolute bottom-3 left-3 z-20">
+             <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full backdrop-blur-md shadow-sm border ${
+               hasImage ? 'bg-black/30 text-white border-white/20' : catStyle
+             }`}>
+              {event.category}
+            </span>
+          </div>
         </div>
       </div>
       
-      <div className="p-5 flex-1 flex flex-col z-10 bg-surface-0">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <span className={`text-2xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-md border ${catStyle}`}>
-            {event.category}
-          </span>
-        </div>
-
-        <h3 className="font-display text-xl text-ink-primary font-bold leading-snug group-hover:text-coral-500 transition-colors duration-200 mb-1 line-clamp-2">
+      <div className="px-6 pb-6 pt-2 flex-1 flex flex-col z-10 relative">
+        <h3 className="font-display text-2xl text-ink-primary font-black leading-tight group-hover:text-brand-500 transition-colors duration-300 mb-3 line-clamp-2">
           {event.title}
         </h3>
 
-        <div className="text-xs font-semibold text-ink-tertiary mb-3 flex items-center gap-2">
-          <span>📅 {formatDateShort(event.event_date)}</span>
-          <span>•</span>
-          <span>⏰ {formatTime(event.start_time)} {event.end_time && `– ${formatTime(event.end_time)}`}</span>
+        <div className="grid grid-cols-2 gap-y-2 text-xs font-semibold text-ink-tertiary mb-4">
+          <span className="flex items-center gap-1.5"><span className="text-xl leading-none">📅</span> {formatDateShort(event.event_date)}</span>
+          <span className="flex items-center gap-1.5"><span className="text-xl leading-none">⏰</span> {formatTime(event.start_time)}</span>
+          <span className="flex items-center gap-1.5 col-span-2"><span className="text-xl leading-none">📍</span> <span className="truncate">{event.stage}</span></span>
         </div>
 
-        <p className="text-sm text-ink-secondary line-clamp-2 leading-relaxed mb-4 flex-1 break-words">
+        <p className="text-sm text-ink-secondary/80 line-clamp-2 leading-relaxed mb-6 flex-1 font-medium">
           {event.description}
         </p>
 
-        <div className="flex items-center justify-between pt-4 border-t border-surface-border">
-          <span className="text-sm font-bold text-ink-secondary">📍 {event.stage}</span>
-          <div className="flex flex-col items-end">
-            <span className="text-sm font-bold text-ink-primary">
+        <div className="flex items-center justify-between pt-4 border-t border-surface-border/50 mt-auto">
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-ink-tertiary uppercase tracking-widest mb-0.5">Tickets</span>
+            <span className="text-lg font-black text-ink-primary leading-none">
               {event.is_free ? 'Free' : `From $${Number(event.general_price).toFixed(2)}`}
             </span>
-            {!sold && (
-              <span className="text-xs font-bold text-coral-500 mt-0.5">
-                {event.tickets_available} tickets left
-              </span>
-            )}
           </div>
+          {!sold && (
+            <div className="w-10 h-10 rounded-full bg-surface-1 flex items-center justify-center text-ink-secondary group-hover:bg-brand-500 group-hover:text-white transition-colors duration-300 shadow-sm">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -136,50 +151,51 @@ function EventModal({ event, onClose }) {
 
         {/* Hero Image */}
         <div 
-          className={`h-64 sm:h-80 w-full bg-cover bg-center relative shrink-0 rounded-t-[2rem] ${gradientClass}`}
-          style={{ backgroundImage: bgImage }}
+          className={`h-72 sm:h-96 w-full relative shrink-0 rounded-t-[2rem] overflow-hidden ${gradientClass}`}
         >
+          <div className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105 hover:scale-100" style={{ backgroundImage: bgImage }}></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-surface-0 via-surface-0/40 to-transparent"></div>
         </div>
 
         {/* Content */}
-        <div className="px-8 pb-8 pt-8 relative z-10 flex-1 flex flex-col">
+        <div className="px-8 pb-8 pt-0 relative z-10 flex-1 flex flex-col -mt-16 sm:-mt-24">
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="badge badge-primary">{event.category}</span>
-            {sold && <span className="badge badge-coral">Sold Out</span>}
+            <span className="badge badge-primary shadow-sm backdrop-blur-md bg-surface-0/80 px-3 py-1 text-xs">{event.category}</span>
+            {sold && <span className="badge badge-coral shadow-sm backdrop-blur-md bg-surface-0/80 px-3 py-1 text-xs">Sold Out</span>}
           </div>
 
-          <h2 className="font-display font-bold text-4xl sm:text-5xl text-ink-primary leading-tight mb-4">{event.title}</h2>
+          <h2 className="font-display font-extrabold text-4xl sm:text-6xl text-ink-primary leading-tight mb-6 drop-shadow-sm">{event.title}</h2>
           
-          <div className="flex flex-wrap items-center gap-6 text-sm font-semibold text-ink-secondary mb-6 bg-surface-1 p-4 rounded-2xl border border-surface-border">
-            <div className="flex items-center gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-semibold text-ink-secondary mb-8 bg-surface-0/80 backdrop-blur-xl p-5 rounded-2xl border border-surface-border shadow-soft">
+            <div className="flex flex-col gap-1">
               <span className="text-xl">📅</span>
-              <span>{formatDate(event.event_date)}</span>
+              <span className="text-ink-primary font-bold">{formatDate(event.event_date)}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-1">
               <span className="text-xl">⏰</span>
-              <span>{formatTime(event.start_time)} {event.end_time && `– ${formatTime(event.end_time)}`}</span>
+              <span className="text-ink-primary font-bold">{formatTime(event.start_time)} {event.end_time && `– ${formatTime(event.end_time)}`}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-1">
               <span className="text-xl">📍</span>
-              <span>{event.stage}</span>
+              <span className="text-ink-primary font-bold">{event.stage}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-1">
               <span className="text-xl">🎟️</span>
-              <span>{event.is_free ? 'Free' : `Gen: $${Number(event.general_price).toFixed(2)} | VIP: $${Number(event.vip_price).toFixed(2)}`}</span>
+              <span className="text-ink-primary font-bold">{event.is_free ? 'Free' : `Gen: $${Number(event.general_price).toFixed(2)} | VIP: $${Number(event.vip_price).toFixed(2)}`}</span>
             </div>
           </div>
 
           <div className="prose prose-sm sm:prose-base text-ink-secondary leading-relaxed mb-8 break-words max-w-full">
-            <p>{event.description}</p>
+            <p className="text-lg leading-relaxed">{event.description}</p>
           </div>
 
-          <div className="mt-auto pt-6 border-t border-surface-border flex items-center justify-between gap-4">
-            <div className="text-sm font-bold text-ink-secondary">
-              Tickets Available: <span className={sold ? 'text-coral-500' : 'text-mint-600'}>{event.tickets_available}</span>
+          <div className="mt-auto pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="text-base font-bold text-ink-secondary bg-surface-1 px-4 py-2 rounded-xl">
+              Tickets Available: <span className={sold ? 'text-coral-500 font-extrabold' : 'text-mint-600 font-extrabold'}>{event.tickets_available}</span>
             </div>
             {!sold && (
-              <a href={`/booking?event=${event.id}`} className="btn-primary btn-lg shadow-lift shrink-0">
-                Book Ticket
+              <a href={`/booking?event=${event.id}`} className="btn-primary btn-lg shadow-[0_8px_20px_-8px_rgba(251,113,133,0.6)] hover:shadow-[0_12px_25px_-8px_rgba(251,113,133,0.8)] shrink-0 w-full sm:w-auto text-center">
+                Book Ticket Now
               </a>
             )}
           </div>
@@ -234,68 +250,79 @@ export default function Events() {
   ];
 
   return (
-    <div className="min-h-screen pt-20 pb-16 bg-surface-1/30">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-
-        {/* Page header */}
-        <div className="py-8 md:py-12 text-center animate-slide-up">
-          <h1 className="font-display text-5xl md:text-6xl font-bold text-ink-primary mb-4 tracking-tight">Explore Events</h1>
-          <p className="text-ink-secondary text-lg md:text-xl font-medium max-w-2xl mx-auto">
-            Discover performances, workshops, and gatherings happening across the city.
-          </p>
-        </div>
-
-        {/* Dynamic Filters */}
-        <div className="bg-surface-0 border border-surface-border rounded-2xl p-4 mb-8 shadow-soft sticky top-20 z-30 backdrop-blur-xl bg-surface-0/80 flex flex-col">
-          
-          {/* Top Bar: Search + Filter Toggle */}
-          <div className="flex gap-3 md:gap-4 items-center w-full">
-            <div className="relative flex-1">
-              <svg className="w-4 h-4 text-ink-tertiary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7 7 0 1116.65 16.65z" />
-              </svg>
-              <input
-                type="search"
-                placeholder="Search events…"
-                className="field-input pl-10 bg-surface-1 border-transparent focus:bg-surface-0 focus:border-coral-500 rounded-full w-full m-0 py-2"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
-
-            <button 
-              onClick={() => setShowFilters(!showFilters)}
-              className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-colors border ${
-                showFilters || stage !== 'All Stages' || day 
-                  ? 'bg-ink-primary text-surface-0 border-ink-primary' 
-                  : 'bg-surface-1 text-ink-secondary border-surface-border hover:bg-surface-2'
-              }`}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              <span className="hidden sm:inline">Filters</span>
-              {(stage !== 'All Stages' || day) && (
-                <span className="w-2 h-2 rounded-full bg-coral-500"></span>
-              )}
-            </button>
+    <div className="min-h-screen pt-24 pb-20 bg-surface-50 relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-1 via-surface-0 to-surface-0">
+      <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-brand-500/5 to-transparent pointer-events-none"></div>
+      
+      <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+        
+        {/* Compact Header & Controls Row */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 animate-slide-up">
+          <div className="max-w-2xl">
+            <h1 className="font-display text-4xl md:text-5xl font-black text-ink-primary tracking-tight mb-3">
+              Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-coral-500">Events</span>
+            </h1>
+            <p className="text-ink-secondary text-base md:text-lg font-medium leading-relaxed">
+              Discover breathtaking performances, workshops, and gatherings across the festival.
+            </p>
           </div>
 
-          {/* Expanded Filters */}
-          {showFilters && (
-            <div className="flex flex-col gap-5 animate-fade-in border-t border-surface-border pt-5 mt-4">
-              {/* Stages Pills */}
-              <div>
-                <p className="text-xs font-bold text-ink-tertiary uppercase tracking-widest mb-3">Filter by Stage</p>
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide max-w-full">
+          {/* Integrated Search & Filter Button */}
+          <div className="flex-1 w-full lg:max-w-md flex flex-col justify-end">
+            <div className="flex gap-3 items-center w-full bg-surface-0 p-2 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-surface-border/50">
+              <div className="relative flex-1 group">
+                <svg className="w-5 h-5 text-ink-tertiary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-brand-500 transition-colors" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7 7 0 1116.65 16.65z" />
+                </svg>
+                <input
+                  type="search"
+                  placeholder="Search events, stages..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-surface-1/50 border-transparent focus:bg-surface-0 focus:border-brand-500/50 focus:ring-2 focus:ring-brand-500/20 rounded-xl text-sm font-medium transition-all outline-none"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className={`shrink-0 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                  showFilters || stage !== 'All Stages' || day 
+                    ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20' 
+                    : 'bg-surface-1 text-ink-secondary hover:bg-surface-2'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span className="hidden sm:inline">Filters</span>
+                {(stage !== 'All Stages' || day) && (
+                  <span className="w-2 h-2 rounded-full bg-white shadow-sm"></span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Expandable Filter Panel */}
+        {showFilters && (
+          <div className="bg-surface-0 p-6 rounded-3xl shadow-soft border border-surface-border/50 mb-10 animate-fade-in flex flex-col gap-6">
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* Stages */}
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-xs font-bold text-ink-tertiary uppercase tracking-widest">Stage</p>
+                  {stage !== 'All Stages' && (
+                    <button onClick={() => setStage('All Stages')} className="text-xs text-brand-500 font-bold hover:underline">Clear</button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
                   {STAGES.map(s => (
                     <button
                       key={s}
                       onClick={() => setStage(s)}
-                      className={`shrink-0 px-4 py-1.5 rounded-full font-semibold text-xs transition-all duration-200 border ${
+                      className={`px-4 py-2 rounded-xl font-semibold text-xs transition-all duration-200 border ${
                         stage === s 
-                          ? 'bg-ink-primary border-ink-primary text-white shadow-md' 
-                          : 'bg-transparent border-surface-border text-ink-secondary hover:bg-surface-1'
+                          ? 'bg-ink-primary border-ink-primary text-white shadow-md shadow-ink-primary/20 scale-[1.02]' 
+                          : 'bg-surface-0 border-surface-border text-ink-secondary hover:bg-surface-1 hover:border-ink-tertiary'
                       }`}
                     >
                       {s}
@@ -304,18 +331,26 @@ export default function Events() {
                 </div>
               </div>
 
-              {/* Days Pills */}
-              <div>
-                <p className="text-xs font-bold text-ink-tertiary uppercase tracking-widest mb-3">Filter by Date</p>
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {/* Divider */}
+              <div className="hidden md:block w-px bg-surface-border/50"></div>
+
+              {/* Dates */}
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-xs font-bold text-ink-tertiary uppercase tracking-widest">Date</p>
+                  {day && (
+                    <button onClick={() => setDay('')} className="text-xs text-brand-500 font-bold hover:underline">Clear</button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
                   {dynamicDays.map(d => (
                     <button
                       key={d.value}
                       onClick={() => setDay(d.value)}
-                      className={`shrink-0 px-5 py-1.5 rounded-full font-semibold text-sm transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-xl font-semibold text-xs transition-all duration-200 border ${
                         day === d.value 
-                          ? 'bg-coral-500 text-white shadow-md shadow-coral-500/20' 
-                          : 'bg-surface-1 text-ink-secondary hover:bg-surface-2'
+                          ? 'bg-brand-500 border-brand-500 text-white shadow-md shadow-brand-500/20 scale-[1.02]' 
+                          : 'bg-surface-0 border-surface-border text-ink-secondary hover:bg-surface-1 hover:border-ink-tertiary'
                       }`}
                     >
                       {d.label}
@@ -324,8 +359,8 @@ export default function Events() {
                 </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Content */}
         {loading && (
@@ -341,7 +376,7 @@ export default function Events() {
         )}
 
         {!loading && !error && events.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-fade-in">
             {events.map(ev => <EventCard key={ev.id} event={ev} onClick={setSelectedEvent} />)}
           </div>
         )}
