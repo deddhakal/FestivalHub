@@ -57,16 +57,16 @@
   .btn-lg  { @apply text-lg px-8 py-4; }
 
   .btn-primary {
-    @apply bg-brand-500 text-white shadow-soft hover:shadow-lift hover:-translate-y-1;
+    @apply btn bg-brand-500 text-white shadow-soft hover:shadow-lift hover:-translate-y-1;
   }
 
   .btn-secondary {
-    @apply bg-white border border-surface-border text-ink-primary
+    @apply btn bg-white border border-surface-border text-ink-primary
            hover:border-ink-tertiary hover:shadow-soft hover:-translate-y-0.5;
   }
 
   .btn-ghost {
-    @apply bg-transparent text-ink-secondary hover:text-ink-primary hover:bg-surface-2;
+    @apply btn bg-transparent text-ink-secondary hover:text-ink-primary hover:bg-surface-2;
   }
 
   /* Cards - Soft, clean layout */

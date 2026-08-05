@@ -200,8 +200,9 @@ export default function ManageTickets() {
 }
 
 function TicketRow({ event, saving, onUpdate }) {
-  const [val, setVal] = useState(event.tickets_available);
-  const changed = val !== event.tickets_available;
+  const [val, setVal] = useState(event.tickets_available.toString());
+  const numericVal = parseInt(val, 10) || 0;
+  const changed = numericVal !== event.tickets_available;
 
   return (
     <tr>
@@ -214,14 +215,14 @@ function TicketRow({ event, saving, onUpdate }) {
         <p className="text-ink-tertiary text-xs font-medium mt-0.5">{event.stage}</p>
       </td>
       <td>
-        <span className={`chip ${val < 30 ? 'chip-warning' : 'chip-success'}`}>
-          {val} available
+        <span className={`chip ${numericVal < 30 ? 'chip-warning' : 'chip-success'}`}>
+          {numericVal} available
         </span>
       </td>
       <td>
         <div className="flex items-center gap-2">
           <button 
-            onClick={() => setVal(v => Math.max(0, v - 10))} 
+            onClick={() => setVal(Math.max(0, numericVal - 1).toString())} 
             className="w-8 h-8 rounded-xl bg-surface-2 border border-surface-border text-ink-secondary hover:bg-surface-border transition-colors font-bold flex items-center justify-center shadow-sm"
           >
             −
@@ -231,10 +232,10 @@ function TicketRow({ event, saving, onUpdate }) {
             min="0"
             className="w-20 text-center bg-white border border-surface-border rounded-xl px-2 py-1.5 text-ink-primary font-bold focus:border-coral-500 focus:outline-none focus:ring-1 focus:ring-coral-500"
             value={val}
-            onChange={e => setVal(Number(e.target.value))}
+            onChange={e => setVal(e.target.value)}
           />
           <button 
-            onClick={() => setVal(v => v + 10)} 
+            onClick={() => setVal((numericVal + 1).toString())} 
             className="w-8 h-8 rounded-xl bg-surface-2 border border-surface-border text-ink-secondary hover:bg-surface-border transition-colors font-bold flex items-center justify-center shadow-sm"
           >
             +
@@ -243,7 +244,7 @@ function TicketRow({ event, saving, onUpdate }) {
           {changed && (
             <button
               disabled={saving}
-              onClick={() => onUpdate(event, val)}
+              onClick={() => onUpdate(event, numericVal)}
               className="ml-2 btn-primary px-4 py-1.5 text-xs disabled:opacity-50"
             >
               Save

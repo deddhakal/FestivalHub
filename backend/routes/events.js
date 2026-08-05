@@ -60,7 +60,12 @@ router.get('/:id', async (req, res) => {
  * @access  Admin
  */
 router.post('/', requireAdmin, async (req, res) => {
-  const { title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
+  let { title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
+  
+  if (event_date && typeof event_date === 'string' && event_date.includes('T')) {
+    event_date = event_date.split('T')[0];
+  }
+
   if (!title || !event_date || !start_time) {
     return res.status(400).json({ error: 'title, event_date, and start_time are required' });
   }
@@ -82,7 +87,12 @@ router.post('/', requireAdmin, async (req, res) => {
  * @access  Admin
  */
 router.put('/:id', requireAdmin, async (req, res) => {
-  const { title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
+  let { title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
+  
+  if (event_date && typeof event_date === 'string' && event_date.includes('T')) {
+    event_date = event_date.split('T')[0];
+  }
+
   try {
     const [result] = await db.query(
       `UPDATE events SET title=?, description=?, stage=?, event_date=?, start_time=?, end_time=?,

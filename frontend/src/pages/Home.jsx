@@ -429,11 +429,11 @@ export default function Home() {
               <p className="text-xl text-white/90 font-medium">Join thousands of students creating unforgettable memories.</p>
             </div>
             <div className="relative z-10 flex flex-col sm:flex-row justify-center gap-5 shrink-0 w-full md:w-auto">
-              <Link to="/booking" className="btn-primary btn-lg shadow-lift bg-white text-coral-600 hover:bg-surface-0 w-full sm:w-auto">
+              <Link to="/booking" className="btn-primary btn-lg shadow-lift bg-white text-coral-500 hover:bg-surface-0 w-full sm:w-auto">
                 <Ticket className="w-5 h-5 mr-1" />
                 Book Tickets Now
               </Link>
-              <Link to="/contact" className="btn-secondary btn-lg bg-coral-600/30 border-coral-400 text-white hover:bg-coral-600/50 hover:border-coral-300 backdrop-blur-sm w-full sm:w-auto">
+              <Link to="/contact" className="btn-secondary btn-lg bg-white/20 border-white/50 text-white hover:bg-white/30 hover:border-white backdrop-blur-sm w-full sm:w-auto">
                 Get Help
               </Link>
             </div>

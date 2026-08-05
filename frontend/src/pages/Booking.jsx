@@ -66,6 +66,98 @@ const STEP_ICONS = {
   3: '💳'
 };
 
+/* ── Success Animation ───────────────────────────────────────── */
+function PaymentSuccessAnimation() {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface-0 overflow-hidden">
+      <style>{`
+        @keyframes scaleUp {
+          0% { transform: scale(0); opacity: 0; }
+          60% { transform: scale(1.1); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes drawCheckMark {
+          0% { stroke-dashoffset: 100; }
+          100% { stroke-dashoffset: 0; }
+        }
+        @keyframes ripple {
+          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+          100% { box-shadow: 0 0 0 100px rgba(16, 185, 129, 0); }
+        }
+        @keyframes fadeUp {
+          0% { opacity: 0; transform: translateY(20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes confettiDrop {
+          0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+        .anim-scale-up {
+          animation: scaleUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .anim-draw-check {
+          stroke-dasharray: 100;
+          stroke-dashoffset: 100;
+          animation: drawCheckMark 0.6s ease-out forwards 0.4s;
+        }
+        .anim-ripple {
+          animation: ripple 1.5s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+        }
+        .anim-fade-up {
+          opacity: 0;
+          animation: fadeUp 0.6s ease-out forwards 0.7s;
+        }
+        .anim-fade-up-delayed {
+          opacity: 0;
+          animation: fadeUp 0.6s ease-out forwards 0.9s;
+        }
+        .confetti {
+          position: absolute;
+          top: -20px;
+          width: 10px;
+          height: 20px;
+          border-radius: 4px;
+          animation: confettiDrop 2.5s ease-in forwards;
+        }
+      `}</style>
+      
+      {/* Background glowing orb */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] md:w-[600px] md:h-[600px] bg-emerald-400/10 rounded-full blur-[100px] animate-pulse pointer-events-none"></div>
+
+      {/* Confetti particles */}
+      {[...Array(30)].map((_, i) => (
+        <div 
+          key={i} 
+          className="confetti" 
+          style={{ 
+            left: `${Math.random() * 100}vw`, 
+            background: ['#10B981', '#34D399', '#6EE7B7', '#FBBF24', '#F472B6', '#60A5FA'][Math.floor(Math.random() * 6)],
+            animationDelay: `${Math.random() * 0.5}s`,
+            animationDuration: `${2 + Math.random() * 1.5}s`
+          }}
+        />
+      ))}
+
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Animated Checkmark Circle */}
+        <div className="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-tr from-emerald-500 to-mint-400 rounded-full flex items-center justify-center anim-scale-up anim-ripple mb-10 shadow-2xl shadow-emerald-500/40">
+          <svg className="w-16 h-16 md:w-20 md:h-20 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 13l4 4L19 7" className="anim-draw-check" />
+          </svg>
+        </div>
+
+        {/* Text */}
+        <h2 className="font-display text-4xl md:text-6xl font-black text-ink-primary mb-4 anim-fade-up tracking-tight text-center px-4">
+          Payment Successful!
+        </h2>
+        <p className="text-lg md:text-xl font-medium text-ink-secondary anim-fade-up-delayed text-center px-4 max-w-md">
+          Your payment has been processed and your digital tickets are being generated.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Booking Component ──────────────────────────────────── */
 export default function Booking() {
   const [searchParams]   = useSearchParams();
@@ -73,6 +165,7 @@ export default function Booking() {
   const [loading,        setLoading]     = useState(true);
   const [submitting,     setSubmitting]  = useState(false);
   const [confirmed,      setConfirmed]   = useState(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [selectedEvent,  setSelectedEvent] = useState(null);
   
   // Checkout State
@@ -139,8 +232,28 @@ export default function Booking() {
     const e = {};
     if (!form.cardName.trim()) e.cardName = 'Name on card is required';
     if (form.cardNumber.replace(/\s/g, '').length < 15) e.cardNumber = 'Valid card number required';
-    if (form.cardExpiry.length < 5) e.cardExpiry = 'Valid expiry (MM/YY) required';
-    if (form.cardCvc.length < 3) e.cardCvc = 'CVC required';
+    
+    if (form.cardExpiry.length < 5) {
+      e.cardExpiry = 'Valid expiry (MM/YY) required';
+    } else {
+      const [m, y] = form.cardExpiry.split('/');
+      const month = parseInt(m, 10);
+      const year = parseInt('20' + y, 10);
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1;
+      const currentYear = now.getFullYear();
+      
+      if (month < 1 || month > 12) {
+        e.cardExpiry = 'Invalid month';
+      } else if (year < currentYear || (year === currentYear && month < currentMonth)) {
+        e.cardExpiry = 'Card has expired';
+      }
+    }
+
+    if (form.cardCvc.length < 3 || form.cardCvc.length > 4) {
+      e.cardCvc = 'Valid CVC required';
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -164,13 +277,20 @@ export default function Booking() {
         ticket_type: form.ticket_type,
         quantity: Number(form.quantity) 
       });
-      setConfirmed({ 
-        ...res.data, 
-        visitor_name: form.visitor_name,
-        visitor_email: form.visitor_email,
-        ticket_type: form.ticket_type, 
-        quantity: form.quantity 
-      });
+      
+      setShowSuccessAnimation(true);
+      
+      setTimeout(() => {
+        setConfirmed({ 
+          ...res.data, 
+          visitor_name: form.visitor_name,
+          visitor_email: form.visitor_email,
+          ticket_type: form.ticket_type, 
+          quantity: form.quantity 
+        });
+        setShowSuccessAnimation(false);
+      }, 3500);
+
     } catch (err) {
       setErrors({ submit: err.response?.data?.error || 'Booking failed. Please try again later.' });
     } finally {
@@ -198,45 +318,66 @@ export default function Booking() {
   const total = subtotal + fee;
 
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-surface-0">
-      <div className="max-w-6xl mx-auto px-4 md:px-6">
+    <div className="min-h-[90vh] pt-16 pb-8 bg-surface-0 relative overflow-hidden">
+      {/* Decorative ambient background blobs */}
+      <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-coral-400/10 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-sky-400/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
 
         {loading ? (
           <div className="py-20 flex justify-center"><LoadingSpinner /></div>
+        ) : showSuccessAnimation ? (
+          <PaymentSuccessAnimation />
         ) : (
-          <div className="grid lg:grid-cols-12 gap-10 xl:gap-16">
+          <div className="grid lg:grid-cols-12 gap-6 xl:gap-8">
 
             {/* Left Column: Checkout Flow (8 cols) */}
             <div className="lg:col-span-7 xl:col-span-8">
               
-              {/* Stepper */}
-              <div className="flex items-center justify-between mb-10 px-2">
-                {[1, 2, 3].map(s => (
-                  <div key={s} className="flex items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
-                      step >= s ? 'bg-coral-500 text-white shadow-soft' : 'bg-surface-2 text-ink-tertiary'
-                    }`}>
-                      {step > s ? '✓' : STEP_ICONS[s]}
+              {/* Stepper (Minimalist) */}
+              <div className="mb-4">
+                <div className="flex items-center gap-3 sm:gap-6 max-w-2xl">
+                  {[1, 2, 3].map((s) => (
+                    <div key={s} className="contents">
+                      <div className={`flex items-center gap-2.5 transition-colors ${step >= s ? 'text-ink-primary' : 'text-ink-tertiary'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 border-2 ${
+                          step >= s ? 'bg-ink-primary border-ink-primary text-white' : 'bg-transparent border-surface-border'
+                        }`}>
+                          {step > s ? (
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            s
+                          )}
+                        </div>
+                        <span className={`text-sm font-bold tracking-tight ${step === s ? 'text-ink-primary' : step > s ? 'text-ink-primary' : 'hidden sm:block'}`}>
+                          {s === 1 ? 'Tickets' : s === 2 ? 'Details' : 'Payment'}
+                        </span>
+                      </div>
+                      
+                      {/* Line connecting steps */}
+                      {s < 3 && (
+                        <div className="flex-1 h-[2px] bg-surface-border/60 relative overflow-hidden rounded-full">
+                          <div className={`absolute top-0 left-0 h-full bg-ink-primary transition-all duration-700 ease-out ${step > s ? 'w-full' : 'w-0'}`} />
+                        </div>
+                      )}
                     </div>
-                    {s < 3 && (
-                      <div className={`w-12 sm:w-20 md:w-32 h-1 mx-2 rounded-full transition-all duration-300 ${
-                        step > s ? 'bg-coral-500' : 'bg-surface-2'
-                      }`} />
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
-              <div className="card shadow-soft p-6 sm:p-10 animate-fade-in relative overflow-hidden">
+              <div className="bg-white/70 backdrop-blur-xl border border-white shadow-xl shadow-surface-border/40 rounded-3xl p-5 sm:p-6 animate-fade-in relative overflow-hidden">
                 
                 {/* Step 1: Tickets */}
                 {step === 1 && (
                   <div className="animate-slide-up">
-                    <h2 className="font-display text-3xl font-bold text-ink-primary mb-6">Select your tickets</h2>
+                    <h2 className="font-display text-2xl font-bold text-ink-primary mb-4">Select your tickets</h2>
                     
-                    <div className="space-y-8">
+                    <div className="space-y-5">
                       <div>
-                        <label className="text-sm font-bold text-ink-primary mb-2 block">Which event are you attending?</label>
+                        <label className="text-sm font-bold text-ink-primary mb-1 block">Which event are you attending?</label>
                         <select
                           className={errors.event_id ? 'field-input-error' : 'field-input bg-surface-1'}
                           value={form.event_id}
@@ -264,7 +405,7 @@ export default function Booking() {
                               key={type}
                               type="button"
                               onClick={() => update('ticket_type', type)}
-                              className={`p-5 rounded-2xl border-2 text-left transition-all duration-200 ${
+                              className={`p-3 rounded-2xl border-2 text-left transition-all duration-200 ${
                                 form.ticket_type === type
                                   ? 'border-coral-500 bg-coral-50 shadow-soft'
                                   : 'border-surface-border bg-surface-0 hover:border-surface-muted hover:bg-surface-1'
@@ -304,7 +445,7 @@ export default function Booking() {
                         {errors.quantity && <p className="text-xs text-coral-500 font-bold mt-1.5">{errors.quantity}</p>}
                       </div>
 
-                      <div className="pt-6 border-t border-surface-border">
+                      <div className="pt-4 border-t border-surface-border">
                         <button onClick={handleNextStep} className="btn-primary btn-lg w-full sm:w-auto px-12">
                           Continue to Details
                         </button>
@@ -316,16 +457,16 @@ export default function Booking() {
                 {/* Step 2: Details */}
                 {step === 2 && (
                   <div className="animate-slide-up">
-                    <h2 className="font-display text-3xl font-bold text-ink-primary mb-2">Guest Details</h2>
-                    <p className="text-sm text-ink-secondary font-medium mb-8">Who is the primary ticket holder for this booking?</p>
+                    <h2 className="font-display text-2xl font-bold text-ink-primary mb-1">Guest Details</h2>
+                    <p className="text-sm text-ink-secondary font-medium mb-4">Who is the primary ticket holder for this booking?</p>
                     
-                    <div className="space-y-6 max-w-md">
+                    <div className="space-y-5 max-w-md">
                       <div>
-                        <label className="text-sm font-bold text-ink-primary mb-2 block">Full Legal Name</label>
+                        <label className="text-sm font-bold text-ink-primary mb-1 block">Full Legal Name</label>
                         <input
                           type="text"
                           className={errors.visitor_name ? 'field-input-error' : 'field-input bg-surface-1'}
-                          placeholder="E.g. Jane Smith"
+                          placeholder="Enter your full name"
                           value={form.visitor_name}
                           onChange={e => update('visitor_name', e.target.value)}
                         />
@@ -333,11 +474,11 @@ export default function Booking() {
                       </div>
 
                       <div>
-                        <label className="text-sm font-bold text-ink-primary mb-2 block">Email Address</label>
+                        <label className="text-sm font-bold text-ink-primary mb-1 block">Email Address</label>
                         <input
                           type="email"
                           className={errors.visitor_email ? 'field-input-error' : 'field-input bg-surface-1'}
-                          placeholder="jane@example.com"
+                          placeholder="Enter your email address"
                           value={form.visitor_email}
                           onChange={e => update('visitor_email', e.target.value)}
                         />
@@ -345,7 +486,7 @@ export default function Booking() {
                         <p className="text-xs font-medium text-ink-tertiary mt-2">Your tickets and receipt will be sent here.</p>
                       </div>
 
-                      <div className="pt-8 flex gap-3">
+                      <div className="pt-4 flex gap-3">
                         <button onClick={() => setStep(1)} className="btn-secondary btn-lg">Back</button>
                         <button onClick={handleNextStep} className="btn-primary btn-lg flex-1">Continue to Payment</button>
                       </div>
@@ -356,25 +497,34 @@ export default function Booking() {
                 {/* Step 3: Payment */}
                 {step === 3 && (
                   <div className="animate-slide-up">
-                    <h2 className="font-display text-3xl font-bold text-ink-primary mb-2">Payment</h2>
-                    <p className="text-sm text-ink-secondary font-medium mb-8">All transactions are secure and encrypted.</p>
+                    <h2 className="font-display text-2xl font-bold text-ink-primary mb-1">Payment</h2>
+                    <p className="text-sm text-ink-secondary font-medium mb-4">All transactions are secure and encrypted.</p>
                     
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                       
                       {/* Simulated Credit Card Form */}
-                      <div className="bg-surface-1 p-6 rounded-2xl border border-surface-border space-y-5 relative overflow-hidden">
+                      <div className="bg-gradient-to-br from-gray-900 to-black p-6 rounded-3xl border border-gray-800 shadow-2xl space-y-4 relative overflow-hidden text-white">
                         
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                          <svg className="w-16 h-16 text-ink-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                        {/* Abstract background for card */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-coral-500/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3 pointer-events-none"></div>
+
+                        <div className="absolute top-8 right-8 opacity-70">
+                          {/* Chip icon mock */}
+                          <div className="w-12 h-9 rounded bg-gradient-to-br from-yellow-100 to-yellow-400 opacity-80 border border-yellow-500/50 flex flex-col justify-evenly px-1 relative overflow-hidden">
+                            <div className="w-full h-px bg-yellow-700/30"></div>
+                            <div className="w-full h-px bg-yellow-700/30"></div>
+                            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-yellow-700/30 -translate-x-1/2"></div>
+                          </div>
                         </div>
 
-                        <div>
-                          <label className="text-xs font-bold uppercase tracking-widest text-ink-secondary mb-2 block">Card Number</label>
+                        <div className="relative z-10 pt-4">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Card Number</label>
                           <input
                             type="text"
                             maxLength="19"
                             placeholder="0000 0000 0000 0000"
-                            className={`w-full bg-white border ${errors.cardNumber ? 'border-coral-500 focus:ring-coral-500' : 'border-surface-muted focus:ring-sky-500'} rounded-xl px-4 py-3 text-ink-primary font-medium focus:outline-none focus:ring-2`}
+                            className={`w-full bg-transparent border-b-2 ${errors.cardNumber ? 'border-coral-500' : 'border-gray-700 focus:border-white'} px-1 py-2 text-white font-mono text-xl tracking-widest focus:outline-none transition-colors placeholder-gray-600`}
                             value={form.cardNumber}
                             onChange={e => {
                               let val = e.target.value.replace(/\D/g, '');
@@ -382,28 +532,29 @@ export default function Booking() {
                               update('cardNumber', val);
                             }}
                           />
-                          {errors.cardNumber && <p className="text-xs text-coral-500 font-bold mt-1.5">{errors.cardNumber}</p>}
+                          {errors.cardNumber && <p className="text-xs text-coral-400 font-bold mt-1.5">{errors.cardNumber}</p>}
                         </div>
 
-                        <div>
-                          <label className="text-xs font-bold uppercase tracking-widest text-ink-secondary mb-2 block">Name on Card</label>
+                        <div className="relative z-10">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Name on Card</label>
                           <input
                             type="text"
-                            placeholder="JANE SMITH"
-                            className={`w-full bg-white border ${errors.cardName ? 'border-coral-500 focus:ring-coral-500' : 'border-surface-muted focus:ring-sky-500'} rounded-xl px-4 py-3 text-ink-primary font-medium uppercase focus:outline-none focus:ring-2`}
+                            placeholder="Enter name on card"
+                            className={`w-full bg-transparent border-b-2 ${errors.cardName ? 'border-coral-500' : 'border-gray-700 focus:border-white'} px-1 py-2 text-white font-display uppercase tracking-widest focus:outline-none transition-colors placeholder-gray-600`}
                             value={form.cardName}
                             onChange={e => update('cardName', e.target.value.toUpperCase())}
                           />
+                          {errors.cardName && <p className="text-xs text-coral-400 font-bold mt-1.5">{errors.cardName}</p>}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-8 relative z-10">
                           <div>
-                            <label className="text-xs font-bold uppercase tracking-widest text-ink-secondary mb-2 block">Expiry</label>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Expiry</label>
                             <input
                               type="text"
                               maxLength="5"
                               placeholder="MM/YY"
-                              className={`w-full bg-white border ${errors.cardExpiry ? 'border-coral-500 focus:ring-coral-500' : 'border-surface-muted focus:ring-sky-500'} rounded-xl px-4 py-3 text-ink-primary font-medium focus:outline-none focus:ring-2`}
+                              className={`w-full bg-transparent border-b-2 ${errors.cardExpiry ? 'border-coral-500' : 'border-gray-700 focus:border-white'} px-1 py-2 text-white font-mono tracking-widest focus:outline-none transition-colors placeholder-gray-600`}
                               value={form.cardExpiry}
                               onChange={e => {
                                 let val = e.target.value.replace(/\D/g, '');
@@ -411,17 +562,19 @@ export default function Booking() {
                                 update('cardExpiry', val);
                               }}
                             />
+                            {errors.cardExpiry && <p className="text-xs text-coral-400 font-bold mt-1.5">{errors.cardExpiry}</p>}
                           </div>
                           <div>
-                            <label className="text-xs font-bold uppercase tracking-widest text-ink-secondary mb-2 block">CVC</label>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">CVC</label>
                             <input
                               type="text"
                               maxLength="4"
                               placeholder="123"
-                              className={`w-full bg-white border ${errors.cardCvc ? 'border-coral-500 focus:ring-coral-500' : 'border-surface-muted focus:ring-sky-500'} rounded-xl px-4 py-3 text-ink-primary font-medium focus:outline-none focus:ring-2`}
+                              className={`w-full bg-transparent border-b-2 ${errors.cardCvc ? 'border-coral-500' : 'border-gray-700 focus:border-white'} px-1 py-2 text-white font-mono tracking-widest focus:outline-none transition-colors placeholder-gray-600`}
                               value={form.cardCvc}
                               onChange={e => update('cardCvc', e.target.value.replace(/\D/g, ''))}
                             />
+                            {errors.cardCvc && <p className="text-xs text-coral-400 font-bold mt-1.5">{errors.cardCvc}</p>}
                           </div>
                         </div>
                       </div>
@@ -432,7 +585,7 @@ export default function Booking() {
                         </div>
                       )}
 
-                      <div className="pt-6 flex gap-3">
+                      <div className="pt-4 flex gap-3">
                         <button type="button" onClick={() => setStep(2)} className="btn-secondary btn-lg">Back</button>
                         <button type="submit" disabled={submitting} className="btn-primary btn-lg flex-1">
                           {submitting ? 'Processing...' : `Pay $${total.toFixed(2)}`}
@@ -446,13 +599,13 @@ export default function Booking() {
 
             {/* Right Column: Order Summary (4 cols) */}
             <div className="lg:col-span-5 xl:col-span-4">
-              <div className="card shadow-soft p-6 sticky top-24">
-                <h3 className="font-display text-xl font-bold text-ink-primary mb-6 border-b border-surface-border pb-4">
+              <div className="bg-white/70 backdrop-blur-xl border border-white shadow-xl shadow-surface-border/40 rounded-3xl p-5 sm:p-6 sticky top-20">
+                <h3 className="font-display text-xl font-bold text-ink-primary mb-4 border-b border-surface-border pb-3">
                   Order Summary
                 </h3>
                 
                 {selectedEvent ? (
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     <div>
                       <span className="text-xs font-bold uppercase tracking-widest text-ink-tertiary block mb-1">Event</span>
                       <p className="text-sm font-bold text-ink-primary">{selectedEvent.title}</p>
