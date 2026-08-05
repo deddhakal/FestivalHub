@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -160,7 +161,17 @@ function MapController({ activeZoneId }) {
 
 /* ── Main ────────────────────────────────────────────────────── */
 export default function FestivalMap() {
+  const location = useLocation();
   const [active, setActive] = useState(null);
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const zoneFromUrl = params.get('zone');
+    if (zoneFromUrl) {
+      setActive(zoneFromUrl);
+    }
+  }, [location.search]);
+
   const selected = ZONES.find(z => z.id === active);
 
   return (

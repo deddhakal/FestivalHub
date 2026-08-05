@@ -175,10 +175,15 @@ function EventModal({ event, onClose }) {
               <span className="text-xl">⏰</span>
               <span className="text-ink-primary font-bold">{formatTime(event.start_time)} {event.end_time && `– ${formatTime(event.end_time)}`}</span>
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xl">📍</span>
-              <span className="text-ink-primary font-bold">{event.stage}</span>
-            </div>
+            <a href={`/map?zone=${event.stage.toLowerCase().replace(/\s+/g, '-')}`} className="flex flex-col gap-1 group cursor-pointer hover:bg-surface-1 p-2 -m-2 rounded-xl transition-colors">
+              <span className="text-xl group-hover:scale-110 transition-transform origin-bottom">📍</span>
+              <span className="text-ink-primary font-bold group-hover:text-brand-500 transition-colors flex items-center gap-1">
+                {event.stage}
+                <svg className="w-3 h-3 text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </span>
+            </a>
             <div className="flex flex-col gap-1">
               <span className="text-xl">🎟️</span>
               <span className="text-ink-primary font-bold">{event.is_free ? 'Free' : `Gen: $${Number(event.general_price).toFixed(2)} | VIP: $${Number(event.vip_price).toFixed(2)}`}</span>
@@ -189,15 +194,23 @@ function EventModal({ event, onClose }) {
             <p className="text-lg leading-relaxed">{event.description}</p>
           </div>
 
-          <div className="mt-auto pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="text-base font-bold text-ink-secondary bg-surface-1 px-4 py-2 rounded-xl">
-              Tickets Available: <span className={sold ? 'text-coral-500 font-extrabold' : 'text-mint-600 font-extrabold'}>{event.tickets_available}</span>
+          <div className="mt-auto pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-base font-bold text-ink-secondary bg-surface-1 px-4 py-2 rounded-xl flex-1 text-center sm:text-left">
+              Tickets: <span className={sold ? 'text-coral-500 font-extrabold' : 'text-mint-600 font-extrabold'}>{event.tickets_available}</span>
             </div>
-            {!sold && (
-              <a href={`/booking?event=${event.id}`} className="btn-primary btn-lg shadow-[0_8px_20px_-8px_rgba(251,113,133,0.6)] hover:shadow-[0_12px_25px_-8px_rgba(251,113,133,0.8)] shrink-0 w-full sm:w-auto text-center">
-                Book Ticket Now
+            <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-4">
+              <a 
+                href={`/map?zone=${event.stage.toLowerCase().replace(/\s+/g, '-')}`} 
+                className="btn-secondary btn-lg shadow-sm shrink-0 w-full sm:w-auto text-center flex items-center justify-center gap-2"
+              >
+                <span>📍</span> View on Map
               </a>
-            )}
+              {!sold && (
+                <a href={`/booking?event=${event.id}`} className="btn-primary btn-lg shadow-[0_8px_20px_-8px_rgba(251,113,133,0.6)] hover:shadow-[0_12px_25px_-8px_rgba(251,113,133,0.8)] shrink-0 w-full sm:w-auto text-center">
+                  Book Ticket Now
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
