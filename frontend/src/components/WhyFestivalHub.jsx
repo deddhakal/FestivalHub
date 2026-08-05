@@ -174,23 +174,23 @@ export default function WhyFestivalHub() {
   return (
     <section
       id="why-festivalhub"
-      className="relative w-full min-h-screen text-ink-primary bg-surface-0 transition-colors duration-500 rounded-t-[3rem] z-20 border-t border-surface-border overflow-hidden flex flex-col items-center justify-center py-24 md:py-32"
+      className="relative w-full h-screen min-h-[600px] text-ink-primary bg-surface-0 transition-colors duration-500 rounded-t-[2.5rem] z-20 border-t border-surface-border overflow-hidden flex flex-col items-center justify-center"
     >
       {/* ─── Background ─── */}
       <AnimatedBackground />
       
       {/* ─── Header ─── */}
-      <div className="relative z-10 px-6 max-w-7xl w-full mx-auto flex flex-col items-center mb-16 md:mb-20">
-        <h2 className="font-display text-4xl md:text-5xl lg:text-[4rem] lg:leading-[1.1] font-extrabold tracking-tight text-ink-primary mb-6 text-center">
+      <div className="relative z-10 px-6 max-w-7xl w-full mx-auto flex flex-col items-center mb-8">
+        <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-ink-primary mb-4 text-center">
            Why <span className="bg-gradient-to-r from-coral-500 to-gold-500 bg-clip-text text-transparent italic pr-2">FestivalHub</span>?
         </h2>
-        <p className="text-ink-secondary text-lg lg:text-xl max-w-2xl text-center">
+        <p className="text-ink-secondary text-base max-w-xl text-center">
           Everything you need to manage, scale, and elevate your festival experience—built into one seamless platform.
         </p>
       </div>
 
       {/* ─── 4-Column Horizontal Features Grid ─── */}
-      <div className="relative z-10 max-w-[1600px] w-full mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+      <div className="relative z-10 max-w-[1400px] w-full mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {steps.map((step, index) => {
           const Icon = step.icon;
           return (
@@ -200,44 +200,51 @@ export default function WhyFestivalHub() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="relative rounded-[2.5rem] border border-surface-border bg-white p-8 lg:p-10 overflow-hidden group hover:-translate-y-3 transition-all duration-500 flex flex-col h-full min-h-[400px] lg:min-h-[460px] cursor-pointer"
+              className="relative rounded-[2rem] border border-surface-border bg-white p-6 lg:p-8 overflow-hidden group hover:-translate-y-2 transition-all duration-500 flex flex-col h-full min-h-[300px] lg:min-h-[320px] cursor-pointer"
               style={{
-                boxShadow: `0 -12px 0 ${step.theme.shadowHex}, 0 15px 40px rgba(0,0,0,0.06)`,
+                boxShadow: `0 -8px 0 ${step.theme.shadowHex}, 0 10px 30px rgba(0,0,0,0.04)`,
               }}
             >
-              {/* Corner accents (Faint brackets mimicking the design) */}
-              <div className={`absolute top-6 left-6 w-8 h-8 border-t-[3px] border-l-[3px] border-ink-primary/15 rounded-tl-xl transition-colors duration-500 ${step.theme.hoverBorder}`} />
-              <div className={`absolute top-6 right-6 w-8 h-8 border-t-[3px] border-r-[3px] border-ink-primary/15 rounded-tr-xl transition-colors duration-500 ${step.theme.hoverBorder}`} />
-              <div className={`absolute bottom-6 left-6 w-8 h-8 border-b-[3px] border-l-[3px] border-ink-primary/15 rounded-bl-xl transition-colors duration-500 ${step.theme.hoverBorder}`} />
-              <div className={`absolute bottom-6 right-6 w-8 h-8 border-b-[3px] border-r-[3px] border-ink-primary/15 rounded-br-xl transition-colors duration-500 ${step.theme.hoverBorder}`} />
+              {/* Corner accents (Faint thick brackets mimicking the design exactly) */}
+              <div className={`absolute top-4 left-4 w-6 h-6 border-t-[3px] border-l-[3px] border-ink-primary/10 rounded-tl-xl transition-colors duration-500 ${step.theme.hoverBorder}`} />
+              <div className={`absolute top-4 right-4 w-6 h-6 border-t-[3px] border-r-[3px] border-ink-primary/10 rounded-tr-xl transition-colors duration-500 ${step.theme.hoverBorder}`} />
+              <div className={`absolute bottom-4 left-4 w-6 h-6 border-b-[3px] border-l-[3px] border-ink-primary/10 rounded-bl-xl transition-colors duration-500 ${step.theme.hoverBorder}`} />
+              <div className={`absolute bottom-4 right-4 w-6 h-6 border-b-[3px] border-r-[3px] border-ink-primary/10 rounded-br-xl transition-colors duration-500 ${step.theme.hoverBorder}`} />
 
-              <div className="relative z-10 flex flex-col h-full mt-4">
-                {/* Icon Box */}
-                <div className={`w-16 h-16 rounded-[1.25rem] ${step.theme.iconBg} flex items-center justify-center ${step.theme.iconText} mb-8 transform transition-all duration-500 group-hover:scale-110 ${step.theme.iconHoverBg} group-hover:text-white ${step.theme.iconHoverShadow}`}>
-                  <Icon className="w-8 h-8" />
+              <div className="relative z-10 flex flex-col h-full mt-2">
+                
+                {/* Header Row: Icon and Title Side-by-Side */}
+                <div className="flex items-center gap-4 mb-4">
+                  {/* Icon Box */}
+                  <div className={`w-[56px] h-[56px] shrink-0 rounded-[1rem] ${step.theme.iconBg} flex items-center justify-center ${step.theme.iconText} transform transition-all duration-500 group-hover:scale-110 ${step.theme.iconHoverBg} group-hover:text-white ${step.theme.iconHoverShadow}`}>
+                    <Icon className="w-6 h-6" />
+                  </div>
+
+                  {/* Typography */}
+                  <h3 className={`font-display text-xl lg:text-2xl font-bold tracking-tight text-ink-primary leading-[1.1] transition-colors duration-300 ${step.theme.titleHover}`}>
+                    {step.title.split(' ').map((word, i) => (
+                      <span key={i} className="block">{word}</span>
+                    ))}
+                  </h3>
                 </div>
 
-                {/* Typography */}
-                <h3 className={`font-display text-2xl lg:text-3xl font-bold tracking-tight text-ink-primary mb-4 transition-colors duration-300 ${step.theme.titleHover}`}>
-                  {step.title}
-                </h3>
-                <p className="text-base lg:text-lg text-ink-secondary leading-relaxed font-medium mb-10">
+                <p className="text-sm text-ink-secondary leading-relaxed font-medium mb-6 pt-1">
                   {step.description}
                 </p>
 
                 {/* Bottom Tags */}
                 <div className="mt-auto flex items-center">
-                  <span className={`text-xs lg:text-sm font-semibold px-5 py-2 rounded-full border-2 ${step.theme.tagBorder} ${step.theme.tagText} bg-transparent whitespace-nowrap transition-all duration-500 ${step.theme.tagHoverBg} ${step.theme.tagHoverBorder}`}>
+                  <span className={`text-xs font-semibold px-4 py-1.5 rounded-full border-2 ${step.theme.tagBorder} ${step.theme.tagText} bg-transparent whitespace-nowrap transition-all duration-500 ${step.theme.tagHoverBg} ${step.theme.tagHoverBorder}`}>
                     {step.tag}
                   </span>
                 </div>
               </div>
 
-              {/* Dynamic hover shadow overlay hack because arbitrary box-shadow with custom hex is complex in raw tailwind */}
+              {/* Dynamic hover shadow overlay */}
               <div 
-                className="absolute inset-0 rounded-[2.5rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                className="absolute inset-0 rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{
-                  boxShadow: `0 30px 60px rgba(0,0,0,0.15)`,
+                  boxShadow: `0 20px 40px rgba(0,0,0,0.12)`,
                 }}
               />
             </motion.div>
