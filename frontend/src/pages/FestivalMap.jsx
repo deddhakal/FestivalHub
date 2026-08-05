@@ -1,281 +1,430 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, MapPin, X, Navigation, Locate, Tent, Info, Music, Coffee, Utensils, ShoppingBag, Ticket, Shield, Info as InfoIcon, Truck, AlertCircle } from 'lucide-react';
+import axios from 'axios';
+
+/* ── Fallback Center ────────────────────────────────────────── */
+const FESTIVAL_CENTER = [-37.7983, 144.9610];
+
+/* ── Icons & Colors Mapping ─────────────────────────────────── */
+const TAG_STYLES = {
+  Stage: { color: 'text-coral-500', bg: 'bg-coral-500', ring: 'ring-coral-500', icon: Music },
+  Event: { color: 'text-coral-500', bg: 'bg-coral-500', ring: 'ring-coral-500', icon: Music },
+  Food: { color: 'text-gold-500', bg: 'bg-gold-500', ring: 'ring-gold-500', icon: Utensils },
+  Drinks: { color: 'text-sky-500', bg: 'bg-sky-500', ring: 'ring-sky-500', icon: Coffee },
+  Merch: { color: 'text-lavender-500', bg: 'bg-lavender-500', ring: 'ring-lavender-500', icon: ShoppingBag },
+  Merchandise: { color: 'text-lavender-500', bg: 'bg-lavender-500', ring: 'ring-lavender-500', icon: ShoppingBag },
+  Attraction: { color: 'text-mint-500', bg: 'bg-mint-500', ring: 'ring-mint-500', icon: Ticket },
+  Facility: { color: 'text-ink-tertiary', bg: 'bg-ink-tertiary', ring: 'ring-ink-tertiary', icon: Tent },
+  Transport: { color: 'text-ink-secondary', bg: 'bg-ink-secondary', ring: 'ring-ink-secondary', icon: Truck },
+  Safety: { color: 'text-red-500', bg: 'bg-red-500', ring: 'ring-red-500', icon: Shield },
+  Default: { color: 'text-ink-primary', bg: 'bg-ink-primary', ring: 'ring-ink-primary', icon: MapPin },
+};
+
+const getStyle = (tag) => TAG_STYLES[tag] || TAG_STYLES.Default;
 
 /* ── Custom Marker Icon ──────────────────────────────────────── */
-const createCustomIcon = (tagColorClass) => {
+const createCustomIcon = (tag, label, isActive) => {
+  const style = getStyle(tag);
+  const glowClasses = isActive 
+    ? `ring-4 ${style.ring} ring-opacity-60 animate-pulse scale-125` 
+    : 'scale-100 group-hover:scale-110';
+    
   return L.divIcon({
-    className: 'bg-transparent border-none',
+    className: 'bg-transparent border-none outline-none',
     html: `
-      <div class="relative w-8 h-8 flex items-center justify-center -top-4 -left-4">
-        <div class="absolute inset-0 bg-white rounded-full shadow-soft flex items-center justify-center ${tagColorClass}">
-          <span class="text-xl">📍</span>
+      <div class="relative group cursor-pointer w-10 h-10 flex items-center justify-center -top-5 -left-5 ${isActive ? 'z-50' : 'z-10'}">
+        <div class="absolute inset-0 bg-white rounded-full shadow-lift flex items-center justify-center border-2 border-surface-0 transition-all duration-300 ${glowClasses}">
+          <div class="w-2.5 h-2.5 rounded-full ${style.bg}"></div>
+        </div>
+        <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity whitespace-nowrap bg-ink-primary text-white text-xs font-bold px-2 py-1 rounded-md shadow-soft pointer-events-none z-[9999]">
+          ${label}
         </div>
       </div>
     `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
   });
 };
 
-/* ── Zone definitions ────────────────────────────────────────── */
-const ZONES = [
+/* ── Static Zone Definitions ─────────────────────────────────── */
+const STATIC_ZONES = [
   {
-    id:   'main-stage',
-    label: 'Main Stage',
-    tag:   'Stage',
-    cap:   'Capacity: 500',
-    desc:  'Our largest stage hosting headline acts. Capacity 500. Located at the north end of the grounds with large screens on both sides.',
-    details: ['Capacity: 500', 'Accessible viewing area', 'Large screens both sides', 'Premium sound system'],
-    pos: [-37.7963, 144.9610],
-  },
-  {
-    id:   'dance-arena',
-    label: 'Dance Arena',
-    tag:   'Stage',
-    cap:   'Capacity: 350',
-    desc:  'Indoor climate-controlled arena for electronic and dance music. VIP tier available above the main floor.',
-    details: ['Capacity: 350', 'Indoor / climate controlled', 'VIP tier available', 'Professional lighting rig'],
-    pos: [-37.7985, 144.9630],
-  },
-  {
-    id:   'garden-stage',
-    label: 'Garden Stage',
-    tag:   'Stage',
-    cap:   'Capacity: 200',
-    desc:  'Intimate outdoor stage surrounded by greenery — ideal for acoustic, jazz and wellness sets. Seating available.',
-    details: ['Capacity: 200', 'Seated area available', 'Picnic blankets welcome', 'Acoustic-focused'],
-    pos: [-37.7995, 144.9605],
-  },
-  {
-    id:   'food-court',
-    label: 'Food Court',
-    tag:   'Food',
-    cap:   '15+ vendors',
-    desc:  'Central food hub with 6 food stalls, 3 drink bars, and seating for 300+. Open 11AM – midnight.',
-    details: ['15+ vendors', 'Seating for 300+', 'Open 11AM – Midnight', 'Cashless payments only'],
-    pos: [-37.7975, 144.9615],
-  },
-  {
-    id:   'drinks-zone',
-    label: 'Drinks Zone',
-    tag:   'Drinks',
-    cap:   'Craft bars',
-    desc:  'Craft beers on tap, cocktails, mocktails, cold brew coffee. ID required for alcohol.',
-    details: ['Craft beers on tap', 'Cocktail & mocktail bar', 'Cold brew coffee', 'ID required for alcohol'],
-    pos: [-37.7970, 144.9620],
-  },
-  {
-    id:   'merch-hub',
-    label: 'Merch Hub',
-    tag:   'Merch',
-    cap:   'Artist & official',
-    desc:  'Official FestivalHub merchandise, artist merch, vinyl records, and exclusive limited prints.',
-    details: ['Official FestivalHub merch', 'Artist merchandise', 'Vinyl records', 'Exclusive limited prints'],
-    pos: [-37.7980, 144.9600],
-  },
-  {
-    id:   'fairground',
-    label: 'Fairground',
-    tag:   'Attraction',
-    cap:   'All ages',
-    desc:  'Ferris wheel, carnival games, photo booth, and face painting. Fun for all ages.',
-    details: ['Ferris wheel', 'Carnival games', 'Photo booth', 'Face painting'],
-    pos: [-37.7990, 144.9590],
-  },
-  {
-    id:   'family-zone',
-    label: 'Family Zone',
-    tag:   'Facility',
-    cap:   'Kids welcome',
-    desc:  'Dedicated family area with supervised activities, quiet feeding rooms, and children\'s entertainment on Sundays.',
-    details: ['Supervised play area', 'Quiet feeding room', 'Kids activities', 'Sunday family shows'],
-    pos: [-37.7992, 144.9625],
-  },
-  {
-    id:   'medical',
-    label: 'Medical',
-    tag:   'Safety',
-    cap:   '24/7 staffed',
-    desc:  'Fully staffed medical tent at Gate A. Open 24 hours during the festival. For emergencies contact security.',
-    details: ['24/7 staffed', 'Located at Gate A', 'First aid equipment', 'Emergency: see wristband'],
+    id: 'medical',
+    label: 'Medical Tent',
+    tag: 'Safety',
+    desc: 'Fully staffed medical tent at Gate A. Open 24 hours during the festival.',
+    details: ['24/7 staffed', 'First aid equipment', 'Located at Gate A'],
     pos: [-37.7978, 144.9585],
   },
   {
-    id:   'parking',
-    label: 'Parking',
-    tag:   'Transport',
-    cap:   'Gate C',
-    desc:  'Main parking at Gate C. Accessible parking near Gate A. CBD shuttles every 30 min from 3PM.',
-    details: ['Main lot – Gate C', 'Accessible – Gate A', 'CBD shuttles every 30 min', '$20/day parking'],
+    id: 'parking',
+    label: 'Main Parking',
+    tag: 'Transport',
+    desc: 'Main parking at Gate C. Accessible parking near Gate A. CBD shuttles available.',
+    details: ['Gate C Location', 'Accessible at Gate A', 'CBD Shuttles'],
     pos: [-37.8000, 144.9640],
   },
   {
-    id:   'info-point',
+    id: 'info-point',
     label: 'Info Point',
-    tag:   'Facility',
-    cap:   'Gate B',
-    desc:  'Collect wristbands, pick up festival guides, lost & found, and accessibility support.',
-    details: ['Wristband pickup', 'Lost & found', 'Festival guides', 'Accessibility support'],
+    tag: 'Facility',
+    desc: 'Collect wristbands, pick up festival guides, lost & found, and accessibility support.',
+    details: ['Wristband pickup', 'Lost & found', 'Festival guides'],
     pos: [-37.7985, 144.9615],
   },
   {
-    id:   'atm',
+    id: 'atm',
     label: 'ATM & Cash',
-    tag:   'Facility',
-    cap:   'Gates A & C',
-    desc:  'ATMs at Gate A and Gate C. All vendors accept cashless payments — EFTPOS, Visa, Mastercard, Apple Pay.',
-    details: ['ATM at Gate A & Gate C', 'EFTPOS accepted', 'Visa / Mastercard', 'Apple Pay accepted'],
+    tag: 'Facility',
+    desc: 'ATMs at Gate A and Gate C. Most vendors accept cashless payments.',
+    details: ['ATM at Gate A & C', 'EFTPOS / Cashless preferred'],
     pos: [-37.7972, 144.9605],
   },
+  {
+    id: 'restrooms-1',
+    label: 'Main Restrooms',
+    tag: 'Facility',
+    desc: 'Large block of restrooms and handwashing stations.',
+    details: ['Accessible stalls', 'Baby changing facilities'],
+    pos: [-37.7992, 144.9625],
+  }
 ];
 
-/* ── Tag accent ──────────────────────────────────────────────── */
-const TAG_COLOR = {
-  Stage:      'text-coral-500',
-  Food:       'text-gold-500',
-  Drinks:     'text-sky-500',
-  Merch:      'text-lavender-500',
-  Attraction: 'text-mint-500',
-  Facility:   'text-ink-tertiary',
-  Transport:  'text-ink-tertiary',
-  Safety:     'text-coral-600',
-};
-
-/* ── Fly to selected zone ────────────────────────────────────── */
-function MapController({ activeZoneId }) {
+/* ── Map Controller Component ────────────────────────────────── */
+function MapController({ activeZonePos }) {
   const map = useMap();
   useEffect(() => {
-    if (activeZoneId) {
-      const zone = ZONES.find(z => z.id === activeZoneId);
-      if (zone) {
-        map.flyTo(zone.pos, 17, { duration: 1.5 });
-      }
-    } else {
-      map.flyTo([-37.7983, 144.9610], 16, { duration: 1.5 });
+    if (activeZonePos) {
+      map.flyTo(activeZonePos, 18, { duration: 1.2, easeLinearity: 0.25 });
     }
-  }, [activeZoneId, map]);
+  }, [activeZonePos, map]);
   return null;
 }
 
-/* ── Main ────────────────────────────────────────────────────── */
+/* ── Main Component ──────────────────────────────────────────── */
 export default function FestivalMap() {
   const location = useLocation();
-  const [active, setActive] = useState(null);
-  
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const zoneFromUrl = params.get('zone');
-    if (zoneFromUrl) {
-      setActive(zoneFromUrl);
-    }
-  }, [location.search]);
+  const [activeZoneId, setActiveZoneId] = useState(null);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef(null);
 
-  const selected = ZONES.find(z => z.id === active);
+  // Fetch dynamic data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [eventsRes, vendorsRes] = await Promise.all([
+          axios.get('/api/events'),
+          axios.get('/api/vendors')
+        ]);
+
+        const events = eventsRes.data.map(e => {
+          // Generate slight random offset for missing coords to avoid complete overlap
+          const lat = e.latitude || FESTIVAL_CENTER[0] + (Math.random() - 0.5) * 0.005;
+          const lng = e.longitude || FESTIVAL_CENTER[1] + (Math.random() - 0.5) * 0.005;
+          
+          return {
+            id: `event-${e.id}`,
+            label: e.title,
+            tag: e.category || 'Event',
+            desc: e.description,
+            details: [`Stage: ${e.stage}`, `Start: ${e.start_time}`],
+            pos: [lat, lng],
+            type: 'event'
+          };
+        });
+
+        const vendors = vendorsRes.data.map(v => {
+          const lat = v.latitude || FESTIVAL_CENTER[0] + (Math.random() - 0.5) * 0.005;
+          const lng = v.longitude || FESTIVAL_CENTER[1] + (Math.random() - 0.5) * 0.005;
+          
+          return {
+            id: `vendor-${v.id}`,
+            label: v.name,
+            tag: v.category || 'Food',
+            desc: v.description,
+            details: [`Stall: ${v.stall_name || 'N/A'}`, `Location: ${v.location || 'General Area'}`],
+            pos: [lat, lng],
+            type: 'vendor'
+          };
+        });
+
+        setItems([...STATIC_ZONES, ...events, ...vendors]);
+      } catch (err) {
+        console.error('Failed to fetch map data:', err);
+        // Fallback to static zones if API fails
+        setItems(STATIC_ZONES);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Handle URL param selection on load
+  useEffect(() => {
+    if (!loading && items.length > 0) {
+      const params = new URLSearchParams(location.search);
+      const zoneFromUrl = params.get('zone');
+      if (zoneFromUrl) {
+        // Attempt to find exact match or partial match
+        const found = items.find(i => i.id === zoneFromUrl || i.id.includes(zoneFromUrl));
+        if (found) {
+          setActiveZoneId(found.id);
+        }
+      }
+    }
+  }, [location.search, loading, items]);
+
+  // Click outside to close search suggestions
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Filter items for search
+  const filteredItems = items.filter(item => 
+    (item.type === 'event' || item.type === 'vendor') &&
+    (item.label.toLowerCase().includes(searchQuery.toLowerCase()) || item.tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const activeItem = items.find(i => i.id === activeZoneId);
+
+  const handleSelect = (item) => {
+    setActiveZoneId(item.id);
+    setSearchQuery(item.label);
+    setShowSuggestions(false);
+  };
 
   return (
-    <div className="min-h-screen pt-20 pb-16 bg-surface-0">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
+    <div className="relative w-full h-screen pt-16 bg-surface-0 overflow-hidden flex flex-col">
+      {/* Decorative Header */}
+      <div className="absolute top-20 left-4 md:left-8 z-[9999] pointer-events-none">
+        <h1 className="font-display text-4xl md:text-5xl font-bold text-ink-primary drop-shadow-md bg-white/70 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/50">
+          Festival Map
+        </h1>
+      </div>
 
-        {/* Page header */}
-        <div className="py-10 md:py-14 border-b border-surface-border mb-8 animate-slide-up">
-          <p className="eyebrow mb-3">Navigate the grounds</p>
-          <h1 className="font-display text-4xl md:text-5xl font-bold text-ink-primary mb-2">Interactive Map</h1>
-          <p className="text-sm text-ink-secondary font-semibold">Explore the campus and click a location to see details.</p>
-        </div>
+      {/* Main Map Container */}
+      <div className="flex-1 w-full relative z-0">
+        <MapContainer
+          center={FESTIVAL_CENTER}
+          zoom={16}
+          scrollWheelZoom={true}
+          zoomControl={false}
+          className="w-full h-full"
+        >
+          {/* Beautiful light map style */}
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            maxZoom={19}
+          />
+          
+          <MapController activeZonePos={activeItem?.pos || null} />
 
-        <div className="grid lg:grid-cols-3 gap-6 xl:gap-10">
+          {items.map((item) => (
+            <Marker 
+              key={item.id} 
+              position={item.pos}
+              icon={createCustomIcon(item.tag, item.label, item.id === activeZoneId)}
+              eventHandlers={{
+                click: () => setActiveZoneId(item.id === activeZoneId ? null : item.id),
+              }}
+            />
+          ))}
+        </MapContainer>
+      </div>
 
-          {/* Map Area — 2 cols */}
-          <div className="lg:col-span-2 h-[600px] card shadow-soft p-2 relative z-0">
-            <MapContainer
-              center={[-37.7983, 144.9610]}
-              zoom={16}
-              scrollWheelZoom={false}
-              className="w-full h-full rounded-[1.2rem]"
-            >
-              {/* Elegant Light map style via CartoDB Positron */}
-              <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                subdomains="abcd"
-                maxZoom={19}
-              />
-              
-              <MapController activeZoneId={active} />
-
-              {ZONES.map((zone) => (
-                <Marker 
-                  key={zone.id} 
-                  position={zone.pos}
-                  icon={createCustomIcon(TAG_COLOR[zone.tag] || 'text-ink-primary')}
-                  eventHandlers={{
-                    click: () => setActive(zone.id === active ? null : zone.id),
-                  }}
-                />
-              ))}
-            </MapContainer>
+      {/* ── Overlay: Search & Directory ───────────────────────── */}
+      <div className="absolute top-40 left-4 md:left-8 z-[9999] w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-4">
+        
+        {/* Search Bar */}
+        <div ref={searchRef} className="relative w-full z-10">
+          <div className="relative bg-white/90 backdrop-blur-xl border border-white/50 shadow-lift rounded-2xl flex items-center px-4 py-3 transition-all focus-within:ring-2 ring-coral-500 ring-opacity-50">
+            <Search className="w-5 h-5 text-ink-tertiary mr-3 shrink-0" />
+            <input 
+              type="text"
+              placeholder="Search event, food, vendor..."
+              className="bg-transparent border-none outline-none w-full text-ink-primary font-medium placeholder:text-ink-tertiary/70 p-0 focus:ring-0"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && filteredItems.length > 0) {
+                  handleSelect(filteredItems[0]);
+                }
+              }}
+            />
+            {searchQuery && (
+              <button onClick={() => { setSearchQuery(''); setActiveZoneId(null); }} className="p-1 hover:bg-surface-2 rounded-full transition-colors ml-2">
+                <X className="w-4 h-4 text-ink-tertiary" />
+              </button>
+            )}
           </div>
 
-          {/* Info panel — 1 col */}
-          <div className="lg:col-span-1">
-            {selected ? (
-              <div className="card sticky top-24 animate-slide-down overflow-hidden shadow-lift border border-surface-border z-10">
-                <div className="h-2 bg-coral-500" />
-                <div className="p-6">
-                  <div className="mb-4">
-                    <span className={`text-xs font-bold uppercase tracking-widest ${TAG_COLOR[selected.tag] || 'text-ink-tertiary'}`}>
-                      {selected.tag}
-                    </span>
-                    <h2 className="font-display text-2xl font-bold text-ink-primary mt-1">{selected.label}</h2>
+          {/* Suggestions Dropdown */}
+          <AnimatePresence>
+            {showSuggestions && searchQuery && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full mt-2 w-full bg-white/95 backdrop-blur-xl border border-surface-border shadow-lift rounded-2xl overflow-hidden max-h-80 overflow-y-auto custom-scrollbar"
+              >
+                {filteredItems.length > 0 ? (
+                  <ul className="py-2">
+                    {filteredItems.map(item => {
+                      const style = getStyle(item.tag);
+                      const Icon = style.icon;
+                      return (
+                        <li key={`search-${item.id}`}>
+                          <button 
+                            onClick={() => handleSelect(item)}
+                            className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-surface-1 transition-colors"
+                          >
+                            <div className={`w-8 h-8 rounded-full ${style.bg} bg-opacity-10 flex items-center justify-center shrink-0`}>
+                              <Icon className={`w-4 h-4 ${style.color}`} />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-ink-primary leading-tight">{item.label}</p>
+                              <p className="text-xs text-ink-secondary">{item.tag}</p>
+                            </div>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <div className="px-4 py-6 text-center text-sm text-ink-tertiary">
+                    No results found for "{searchQuery}"
                   </div>
-                  <p className="text-sm text-ink-secondary leading-relaxed mb-5 font-medium">{selected.desc}</p>
-                  <p className="eyebrow mb-3">Details</p>
-                  <ul className="space-y-2">
-                    {selected.details.map((item, i) => (
-                      <li key={i} className="flex items-center gap-2.5 text-sm text-ink-secondary font-medium">
-                        <div className="w-1.5 h-1.5 rounded-full bg-coral-500 shrink-0" />
-                        {item}
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Directory List (Desktop Only, Optional) */}
+        {!activeItem && (
+          <div className="hidden md:block bg-white/80 backdrop-blur-xl border border-white/50 shadow-soft rounded-2xl overflow-hidden animate-slide-up animation-delay-100">
+            <div className="px-5 py-4 border-b border-surface-border/50 bg-white/50 flex items-center gap-2">
+              <Locate className="w-4 h-4 text-coral-500" />
+              <h3 className="font-display font-bold text-ink-primary">Directory</h3>
+            </div>
+            <div className="max-h-64 overflow-y-auto custom-scrollbar p-2">
+              {loading ? (
+                <div className="p-4 text-center text-sm text-ink-secondary">Loading directory...</div>
+              ) : (
+                items.slice(0, 15).map(item => {
+                  const style = getStyle(item.tag);
+                  const Icon = style.icon;
+                  return (
+                    <button
+                      key={`dir-${item.id}`}
+                      onClick={() => handleSelect(item)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white transition-colors text-left group"
+                    >
+                      <div className={`w-7 h-7 rounded-full ${style.bg} bg-opacity-10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                        <Icon className={`w-3.5 h-3.5 ${style.color}`} />
+                      </div>
+                      <span className="text-sm font-semibold text-ink-secondary group-hover:text-ink-primary transition-colors truncate">
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Overlay: Details Panel ────────────────────────────── */}
+      <AnimatePresence>
+        {activeItem && (
+          <motion.div 
+            initial={{ opacity: 0, x: 20, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 20, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="absolute bottom-6 left-4 right-4 md:bottom-auto md:left-auto md:top-20 md:right-8 z-[9999] md:w-80 bg-white/95 backdrop-blur-2xl border border-white/50 shadow-lift rounded-3xl overflow-hidden"
+          >
+            {/* Color Accent Header */}
+            <div className={`h-3 w-full ${getStyle(activeItem.tag).bg}`} />
+            
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className={`px-2.5 py-1 rounded-md bg-opacity-10 text-xs font-bold uppercase tracking-wider ${getStyle(activeItem.tag).color} ${getStyle(activeItem.tag).bg.replace('bg-', 'bg-').concat('/10')}`}>
+                    {activeItem.tag}
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setActiveZoneId(null)}
+                  className="p-1.5 hover:bg-surface-2 rounded-full transition-colors shrink-0"
+                >
+                  <X className="w-5 h-5 text-ink-tertiary" />
+                </button>
+              </div>
+              
+              <h2 className="font-display text-2xl font-bold text-ink-primary mb-2 leading-tight pr-4">
+                {activeItem.label}
+              </h2>
+              
+              <p className="text-sm text-ink-secondary leading-relaxed mb-6 font-medium">
+                {activeItem.desc || 'No description available for this location.'}
+              </p>
+              
+              {activeItem.details && activeItem.details.length > 0 && (
+                <div className="bg-surface-1 p-4 rounded-2xl mb-6">
+                  <p className="eyebrow mb-3 text-ink-tertiary flex items-center gap-1.5">
+                    <InfoIcon className="w-3.5 h-3.5" /> Quick Info
+                  </p>
+                  <ul className="space-y-2.5">
+                    {activeItem.details.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm text-ink-secondary font-medium">
+                        <div className={`w-1.5 h-1.5 mt-1.5 rounded-full ${getStyle(activeItem.tag).bg} shrink-0`} />
+                        <span className="leading-snug">{item}</span>
                       </li>
                     ))}
                   </ul>
-                  <button 
-                    onClick={() => setActive(null)}
-                    className="mt-6 w-full btn-secondary btn-sm"
-                  >
-                    Close Details
-                  </button>
                 </div>
-              </div>
-            ) : (
-              <div className="card p-6 sticky top-24 shadow-soft">
-                <p className="eyebrow mb-4">Directory</p>
-                <div className="space-y-1 h-[450px] overflow-y-auto pr-2 custom-scrollbar">
-                  {ZONES.map(z => (
-                    <button
-                      key={z.id}
-                      onClick={() => setActive(z.id)}
-                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-2 transition-colors text-left group"
-                    >
-                      <span className="text-sm font-semibold text-ink-secondary group-hover:text-ink-primary transition-colors">
-                        {z.label}
-                      </span>
-                      <span className={`text-2xs font-bold uppercase tracking-wider ${TAG_COLOR[z.tag] || 'text-ink-tertiary'}`}>
-                        {z.tag}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-ink-tertiary font-semibold mt-4 pt-4 border-t border-surface-border text-center">
-                  Select a zone on the map or list to see full details.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
+      {/* Floating Action Button (Mobile Only) */}
+      <div className="absolute bottom-6 right-4 md:hidden z-[9999]">
+        <button 
+          onClick={() => {
+            const map = document.querySelector('.leaflet-container')?._leaflet_map;
+            if (map) map.flyTo(FESTIVAL_CENTER, 16, { duration: 1 });
+          }}
+          className="w-12 h-12 bg-white text-ink-primary shadow-soft rounded-full flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <Locate className="w-5 h-5" />
+        </button>
       </div>
+
     </div>
   );
 }
