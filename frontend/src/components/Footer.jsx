@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Twitter, Instagram, Linkedin } from 'lucide-react';
+
 
 const LINKS = {
   'Platform': [
@@ -71,11 +71,7 @@ export default function Footer() {
           <div className="text-xs text-ink-tertiary">
             © {new Date().getFullYear()} Festival Hub Inc. All rights reserved.
           </div>
-          <div className="flex items-center gap-6 text-xs text-ink-tertiary">
-            <a href="#" className="hover:text-ink-primary transition-colors"><Twitter className="w-4 h-4" /></a>
-            <a href="#" className="hover:text-ink-primary transition-colors"><Linkedin className="w-4 h-4" /></a>
-            <a href="#" className="hover:text-ink-primary transition-colors"><Instagram className="w-4 h-4" /></a>
-          </div>
+
         </div>
       </div>
     </footer>
