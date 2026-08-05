@@ -33,6 +33,8 @@ CREATE TABLE events (
   start_time TIME NOT NULL,
   end_time TIME,
   category VARCHAR(50),
+  latitude DECIMAL(10,8),
+  longitude DECIMAL(11,8),
   image_url VARCHAR(255),
   is_free BOOLEAN DEFAULT 1,
   general_price DECIMAL(10,2) DEFAULT 0.00,
@@ -58,9 +60,12 @@ CREATE TABLE bookings (
 CREATE TABLE vendors (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
+  stall_name VARCHAR(100),
   description TEXT,
   category ENUM('Food', 'Drinks', 'Merchandise', 'Attraction') NOT NULL,
   location VARCHAR(100),
+  latitude DECIMAL(10,8),
+  longitude DECIMAL(11,8),
   image_url VARCHAR(255),
   is_active TINYINT(1) DEFAULT 1,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -94,24 +99,24 @@ INSERT INTO admins (username, password_hash, name) VALUES
 ('admin', '$2a$10$RdozPBxyt4kkaOYzXnMX8eKeLxrLGSSQ3xNe7KKz89tWPL7qTiw.S', 'Campus Admin');
 
 -- ─── Events ────────────────────────────────────────────────
-INSERT INTO events (title, description, stage, event_date, start_time, end_time, category, tickets_available) VALUES
-('Spring Music Festival', 'The biggest outdoor music event of the semester featuring student bands and a headline DJ.', 'Main Quad', '2026-09-10', '16:00:00', '22:00:00', 'Music', 800),
-('Global Hackathon 2026', 'A 24-hour coding marathon to solve real-world problems. Free food and amazing prizes!', 'Innovation Center', '2026-09-15', '09:00:00', '09:00:00', 'Hackathon', 150),
-('Student Art Exhibition', 'Explore breathtaking artwork, photography, and sculptures created by our fine arts students.', 'Creative Arts Building', '2026-09-18', '11:00:00', '18:00:00', 'Art', 300),
-('International Food Fiesta', 'Taste the world! Stalls featuring authentic cuisines prepared by international student clubs.', 'Student Union Plaza', '2026-09-22', '12:00:00', '16:00:00', 'Food', 500),
-('Campus Marathon & Sports Day', 'Join the 5K run around the campus followed by inter-college sports tournaments.', 'Athletics Track', '2026-09-25', '08:00:00', '15:00:00', 'Sports', 250),
-('Diwali Cultural Night', 'Celebrate the festival of lights with traditional dances, music, and a grand feast.', 'Main Auditorium', '2026-10-15', '18:00:00', '23:00:00', 'Cultural', 600),
-('AI & Future Tech Workshop', 'Hands-on workshop exploring the latest in generative AI and machine learning trends.', 'Tech Hub Room 201', '2026-10-20', '14:00:00', '17:00:00', 'Workshop', 80),
-('Indie Film Screening', 'A cozy movie night under the stars screening award-winning indie films.', 'Lawn Amphitheater', '2026-10-28', '19:30:00', '22:30:00', 'Film Club', 200);
+INSERT INTO events (title, description, stage, event_date, start_time, end_time, category, latitude, longitude, tickets_available) VALUES
+('Spring Music Festival', 'The biggest outdoor music event of the semester featuring student bands and a headline DJ.', 'Main Quad', '2026-09-10', '16:00:00', '22:00:00', 'Music', -37.7963, 144.9610, 800),
+('Global Hackathon 2026', 'A 24-hour coding marathon to solve real-world problems. Free food and amazing prizes!', 'Innovation Center', '2026-09-15', '09:00:00', '09:00:00', 'Hackathon', -37.7990, 144.9590, 150),
+('Student Art Exhibition', 'Explore breathtaking artwork, photography, and sculptures created by our fine arts students.', 'Creative Arts Building', '2026-09-18', '11:00:00', '18:00:00', 'Art', -37.7985, 144.9630, 300),
+('International Food Fiesta', 'Taste the world! Stalls featuring authentic cuisines prepared by international student clubs.', 'Student Union Plaza', '2026-09-22', '12:00:00', '16:00:00', 'Food', -37.7975, 144.9615, 500),
+('Campus Marathon & Sports Day', 'Join the 5K run around the campus followed by inter-college sports tournaments.', 'Athletics Track', '2026-09-25', '08:00:00', '15:00:00', 'Sports', -37.8000, 144.9640, 250),
+('Diwali Cultural Night', 'Celebrate the festival of lights with traditional dances, music, and a grand feast.', 'Main Auditorium', '2026-10-15', '18:00:00', '23:00:00', 'Cultural', -37.7963, 144.9610, 600),
+('AI & Future Tech Workshop', 'Hands-on workshop exploring the latest in generative AI and machine learning trends.', 'Tech Hub Room 201', '2026-10-20', '14:00:00', '17:00:00', 'Workshop', -37.7990, 144.9590, 80),
+('Indie Film Screening', 'A cozy movie night under the stars screening award-winning indie films.', 'Lawn Amphitheater', '2026-10-28', '19:30:00', '22:30:00', 'Film Club', -37.7995, 144.9605, 200);
 
 -- ─── Vendors ────────────────────────────────────────────────
-INSERT INTO vendors (name, description, category, location, is_active) VALUES
-('The Matcha Bar', 'Premium iced matcha lattes, boba, and Asian-inspired pastries.', 'Drinks', 'Union Square Kiosk', 1),
-('Gourmet Grilled Cheese', 'Artisan grilled cheese sandwiches with locally sourced sourdough.', 'Food', 'Main Quad Food Trucks', 1),
-('Campus Thrift & Vintage', 'Student-run thrift shop featuring vintage clothing and accessories.', 'Merchandise', 'Student Hub - Level 1', 1),
-('VR Gaming Experience', 'Step into another world with our immersive VR setups. Free for students!', 'Attraction', 'Innovation Center', 1),
-('Acai & Smoothie Bowl', 'Fresh, healthy, and organic acai bowls to keep your energy up.', 'Food', 'Athletics Track Entrance', 1),
-('Craft Coffee Cart', 'Locally roasted artisan coffee, cold brew, and fresh croissants.', 'Drinks', 'Library Courtyard', 1);
+INSERT INTO vendors (name, stall_name, description, category, location, latitude, longitude, is_active) VALUES
+('The Matcha Bar', 'Stall A1', 'Premium iced matcha lattes, boba, and Asian-inspired pastries.', 'Drinks', 'Union Square Kiosk', -37.7975, 144.9615, 1),
+('Gourmet Grilled Cheese', 'Stall B2', 'Artisan grilled cheese sandwiches with locally sourced sourdough.', 'Food', 'Main Quad Food Trucks', -37.7977, 144.9610, 1),
+('Campus Thrift & Vintage', 'Stall C3', 'Student-run thrift shop featuring vintage clothing and accessories.', 'Merchandise', 'Student Hub - Level 1', -37.7980, 144.9600, 1),
+('VR Gaming Experience', 'Stall D4', 'Step into another world with our immersive VR setups. Free for students!', 'Attraction', 'Innovation Center', -37.7990, 144.9590, 1),
+('Acai & Smoothie Bowl', 'Stall E5', 'Fresh, healthy, and organic acai bowls to keep your energy up.', 'Food', 'Athletics Track Entrance', -37.7965, 144.9620, 1),
+('Craft Coffee Cart', 'Stall F6', 'Locally roasted artisan coffee, cold brew, and fresh croissants.', 'Drinks', 'Library Courtyard', -37.7970, 144.9612, 1);
 
 -- ─── Announcements ─────────────────────────────────────────
 INSERT INTO announcements (title, content, type) VALUES

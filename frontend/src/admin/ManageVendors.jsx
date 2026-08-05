@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getVendors, createVendor, updateVendor, deleteVendor } from '../services/api';
 import { LoadingSpinner, EmptyState } from '../components/UI';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
 
-const BLANK = { name: '', description: '', category: 'Food', location: '', is_active: 1 };
+const BLANK = { name: '', stall_name: '', description: '', category: 'Food', location: '', latitude: '', longitude: '', is_active: 1 };
 const CATEGORIES = ['Food', 'Drinks', 'Merchandise', 'Attraction'];
 const CAT_ICONS  = { Food:'🍔', Drinks:'🍺', Merchandise:'👕', Attraction:'🎡' };
 const CAT_BADGE_CLASSES = {
@@ -26,15 +28,98 @@ function Modal({ title, children, onClose }) {
   );
 }
 
+const defaultIcon = L.icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+function MapController({ centerPos }) {
+  const map = useMap();
+  useEffect(() => {
+    if (centerPos && centerPos[0] && centerPos[1]) {
+      map.flyTo(centerPos, 16);
+    }
+  }, [centerPos, map]);
+  return null;
+}
+
+function LocationPicker({ lat, lng, onChange }) {
+  const [search, setSearch] = useState('');
+  const position = lat && lng ? [lat, lng] : [-37.7983, 144.9610];
+  
+  function MapEvents() {
+    useMapEvents({
+      click(e) {
+        onChange(e.latlng.lat, e.latlng.lng);
+      },
+    });
+    return null;
+  }
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!search) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(search)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const newLat = parseFloat(data[0].lat);
+        const newLng = parseFloat(data[0].lon);
+        onChange(newLat, newLng);
+      } else {
+        alert('Location not found');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Search failed');
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2 mt-2">
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <input 
+          type="text" 
+          value={search} 
+          onChange={(e) => setSearch(e.target.value)} 
+          placeholder="Search location (e.g. Melbourne University)" 
+          className="field-input py-1.5 px-3 text-sm flex-1 bg-surface-1" 
+        />
+        <button type="submit" className="btn-secondary py-1.5 px-3 text-xs">Search</button>
+      </form>
+      <div className="h-48 w-full rounded-xl overflow-hidden border border-surface-border z-0 relative">
+        <MapContainer center={position} zoom={16} className="h-full w-full bg-surface-1">
+          <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+          <MapEvents />
+          <MapController centerPos={lat && lng ? [lat, lng] : null} />
+          {lat && lng && <Marker position={[lat, lng]} icon={defaultIcon} />}
+        </MapContainer>
+        <div className="absolute bottom-2 left-2 z-[400] bg-white/90 px-2 py-1 text-2xs font-bold rounded shadow-sm text-ink-secondary pointer-events-none">
+          Click map to pin exactly
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function VendorForm({ initial = BLANK, onSave, onCancel, saving }) {
   const [form, setForm] = useState(initial);
   const u = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   return (
     <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-5">
-      <div>
-        <label className="field-label">Vendor Name *</label>
-        <input className="field-input" placeholder="e.g. The Matcha Bar" value={form.name} onChange={e => u('name', e.target.value)} required />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="field-label">Vendor Name *</label>
+          <input className="field-input" placeholder="e.g. The Matcha Bar" value={form.name} onChange={e => u('name', e.target.value)} required />
+        </div>
+        <div>
+          <label className="field-label">Stall Name</label>
+          <input className="field-input" placeholder="e.g. Stall A1" value={form.stall_name} onChange={e => u('stall_name', e.target.value)} />
+        </div>
       </div>
       <div>
         <label className="field-label">Description</label>
@@ -56,8 +141,16 @@ function VendorForm({ initial = BLANK, onSave, onCancel, saving }) {
         </div>
       </div>
       <div>
-        <label className="field-label">Location</label>
+        <label className="field-label">Location Description</label>
         <input className="field-input" placeholder="e.g. Food Court - Stall A1" value={form.location} onChange={e => u('location', e.target.value)} />
+      </div>
+      <div>
+        <label className="field-label">Map Coordinates (Optional)</label>
+        <div className="flex gap-2 mb-2">
+          <input type="number" step="any" className="field-input text-xs flex-1" placeholder="Latitude" value={form.latitude} onChange={e => u('latitude', e.target.value)} />
+          <input type="number" step="any" className="field-input text-xs flex-1" placeholder="Longitude" value={form.longitude} onChange={e => u('longitude', e.target.value)} />
+        </div>
+        <LocationPicker lat={form.latitude} lng={form.longitude} onChange={(lat, lng) => setForm(f => ({ ...f, latitude: lat.toFixed(6), longitude: lng.toFixed(6) }))} />
       </div>
       <div className="flex gap-3 pt-4 mt-6 border-t border-surface-border">
         <button type="submit" disabled={saving} className="btn-primary flex-1">
@@ -150,7 +243,7 @@ export default function ManageVendors() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Vendor</th>
+                <th>Vendor & Stall</th>
                 <th>Category</th>
                 <th>Location</th>
                 <th>Status</th>
@@ -162,14 +255,20 @@ export default function ManageVendors() {
                 <tr key={v.id}>
                   <td>
                     <p className="font-bold text-ink-primary">{v.name}</p>
-                    <p className="text-ink-secondary text-xs font-medium line-clamp-1 mt-0.5">{v.description}</p>
+                    <div className="text-ink-secondary text-xs font-medium mt-0.5 flex flex-col gap-0.5">
+                      {v.stall_name && <span className="text-amber-600">[{v.stall_name}]</span>}
+                      <span className="line-clamp-1">{v.description}</span>
+                    </div>
                   </td>
                   <td>
                     <span className={CAT_BADGE_CLASSES[v.category] || 'badge-default'}>
                       {CAT_ICONS[v.category]} {v.category}
                     </span>
                   </td>
-                  <td className="text-ink-secondary font-medium">{v.location || '—'}</td>
+                  <td className="text-ink-secondary text-xs font-medium">
+                    <p>{v.location || '—'}</p>
+                    {v.latitude && v.longitude && <p className="text-2xs text-ink-tertiary font-mono">{v.latitude}, {v.longitude}</p>}
+                  </td>
                   <td>
                     <span className={`chip ${v.is_active ? 'chip-success' : 'bg-surface-2 text-ink-tertiary'}`}>
                       {v.is_active ? 'Active' : 'Inactive'}
@@ -191,7 +290,7 @@ export default function ManageVendors() {
       {(modal === 'add' || modal?.edit) && (
         <Modal title={modal?.edit ? `Edit: ${modal.edit.name}` : 'Add New Vendor'} onClose={() => setModal(null)}>
           <VendorForm
-            initial={modal?.edit ? { name: modal.edit.name, description: modal.edit.description || '', category: modal.edit.category, location: modal.edit.location || '', is_active: modal.edit.is_active } : BLANK}
+            initial={modal?.edit ? { name: modal.edit.name, stall_name: modal.edit.stall_name || '', description: modal.edit.description || '', category: modal.edit.category, location: modal.edit.location || '', latitude: modal.edit.latitude || '', longitude: modal.edit.longitude || '', is_active: modal.edit.is_active } : BLANK}
             onSave={handleSave} onCancel={() => setModal(null)} saving={saving}
           />
         </Modal>

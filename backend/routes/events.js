@@ -60,7 +60,7 @@ router.get('/:id', async (req, res) => {
  * @access  Admin
  */
 router.post('/', requireAdmin, async (req, res) => {
-  let { title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
+  let { title, description, stage, event_date, start_time, end_time, category, latitude, longitude, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
   
   if (event_date && typeof event_date === 'string' && event_date.includes('T')) {
     event_date = event_date.split('T')[0];
@@ -71,9 +71,9 @@ router.post('/', requireAdmin, async (req, res) => {
   }
   try {
     const [result] = await db.query(
-      `INSERT INTO events (title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price || 0, vip_price || 0, tickets_available ?? 100]
+      `INSERT INTO events (title, description, stage, event_date, start_time, end_time, category, latitude, longitude, image_url, is_free, general_price, vip_price, tickets_available)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, description, stage, event_date, start_time, end_time, category, latitude, longitude, image_url, is_free, general_price || 0, vip_price || 0, tickets_available ?? 100]
     );
     res.status(201).json({ message: 'Event created successfully', id: result.insertId });
   } catch (err) {
@@ -87,7 +87,7 @@ router.post('/', requireAdmin, async (req, res) => {
  * @access  Admin
  */
 router.put('/:id', requireAdmin, async (req, res) => {
-  let { title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
+  let { title, description, stage, event_date, start_time, end_time, category, latitude, longitude, image_url, is_free, general_price, vip_price, tickets_available } = req.body;
   
   if (event_date && typeof event_date === 'string' && event_date.includes('T')) {
     event_date = event_date.split('T')[0];
@@ -96,8 +96,8 @@ router.put('/:id', requireAdmin, async (req, res) => {
   try {
     const [result] = await db.query(
       `UPDATE events SET title=?, description=?, stage=?, event_date=?, start_time=?, end_time=?,
-       category=?, image_url=?, is_free=?, general_price=?, vip_price=?, tickets_available=? WHERE id=?`,
-      [title, description, stage, event_date, start_time, end_time, category, image_url, is_free, general_price || 0, vip_price || 0, tickets_available, req.params.id]
+       category=?, latitude=?, longitude=?, image_url=?, is_free=?, general_price=?, vip_price=?, tickets_available=? WHERE id=?`,
+      [title, description, stage, event_date, start_time, end_time, category, latitude, longitude, image_url, is_free, general_price || 0, vip_price || 0, tickets_available, req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Event not found' });
     res.json({ message: 'Event updated successfully' });

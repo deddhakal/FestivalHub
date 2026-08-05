@@ -1,8 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { getEvents } from '../services/api';
 import { LoadingSpinner, ErrorMessage, EmptyState } from '../components/UI';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
 
 const STAGES = ['All Stages', 'Main Stage', 'Dance Arena', 'Garden Stage', 'Family Zone'];
+
+const createCustomIcon = (colorClass) => {
+  return L.divIcon({
+    className: 'bg-transparent border-none',
+    html: `
+      <div class="relative w-10 h-10 flex items-center justify-center transition-transform hover:scale-110">
+        <div class="absolute inset-0 bg-white rounded-full shadow-lift flex items-center justify-center ${colorClass}">
+          <span class="text-xl">📍</span>
+        </div>
+      </div>
+    `,
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -45]
+  });
+};
 
 const CATEGORY_COLOR = {
   Electronic: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
@@ -130,6 +148,13 @@ function EventCard({ event, onClick }) {
 
 /* ── Event Modal ─────────────────────────────────────────────── */
 function EventModal({ event, onClose }) {
+  const [showMap, setShowMap] = useState(false);
+  
+  // Reset map view when opening a new event
+  useEffect(() => {
+    setShowMap(false);
+  }, [event]);
+
   if (!event) return null;
   const sold = event.tickets_available === 0;
   const hasImage = !!event.image_url;
@@ -149,17 +174,42 @@ function EventModal({ event, onClose }) {
           ✕
         </button>
 
-        {/* Hero Image */}
+        {/* Hero Area (Image or Map) */}
         <div 
-          className={`h-72 sm:h-96 w-full relative shrink-0 rounded-t-[2rem] overflow-hidden ${gradientClass}`}
+          className={`h-72 sm:h-96 w-full relative shrink-0 rounded-t-[2rem] overflow-hidden ${gradientClass} transition-all duration-500`}
         >
-          <div className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105 hover:scale-100" style={{ backgroundImage: bgImage }}></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-surface-0 via-surface-0/40 to-transparent"></div>
+          {showMap && event.latitude && event.longitude ? (
+            <div className="absolute inset-0 z-10 animate-fade-in">
+              <MapContainer 
+                center={[event.latitude, event.longitude]} 
+                zoom={17} 
+                scrollWheelZoom={false} 
+                className="w-full h-full"
+              >
+                <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+                <Marker 
+                  position={[event.latitude, event.longitude]}
+                  icon={createCustomIcon('text-brand-500 bg-brand-50')}
+                >
+                  <Popup className="rounded-xl overflow-hidden shadow-lift border-none">
+                    <div className="font-display font-bold text-ink-primary text-base mb-1">{event.title}</div>
+                    <div className="text-xs font-bold text-brand-500 mb-1">{event.stage}</div>
+                    <div className="text-xs font-medium text-ink-secondary">{event.category}</div>
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            </div>
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105 hover:scale-100" style={{ backgroundImage: bgImage }}></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-surface-0 via-surface-0/40 to-transparent"></div>
+            </>
+          )}
         </div>
 
         {/* Content */}
-        <div className="px-8 pb-8 pt-0 relative z-10 flex-1 flex flex-col -mt-16 sm:-mt-24">
-          <div className="flex flex-wrap gap-2 mb-4">
+        <div className="px-8 pb-8 pt-0 relative z-10 flex-1 flex flex-col -mt-16 sm:-mt-24 pointer-events-none">
+          <div className="flex flex-wrap gap-2 mb-4 pointer-events-auto">
             <span className="badge badge-primary shadow-sm backdrop-blur-md bg-surface-0/80 px-3 py-1 text-xs">{event.category}</span>
             {sold && <span className="badge badge-coral shadow-sm backdrop-blur-md bg-surface-0/80 px-3 py-1 text-xs">Sold Out</span>}
           </div>
@@ -175,36 +225,39 @@ function EventModal({ event, onClose }) {
               <span className="text-xl">⏰</span>
               <span className="text-ink-primary font-bold">{formatTime(event.start_time)} {event.end_time && `– ${formatTime(event.end_time)}`}</span>
             </div>
-            <a href={`/map?zone=${event.stage.toLowerCase().replace(/\s+/g, '-')}`} className="flex flex-col gap-1 group cursor-pointer hover:bg-surface-1 p-2 -m-2 rounded-xl transition-colors">
+            <button onClick={() => { if(event.latitude && event.longitude) setShowMap(true); }} className="flex flex-col gap-1 group cursor-pointer hover:bg-surface-1 p-2 -m-2 rounded-xl transition-colors pointer-events-auto text-left">
               <span className="text-xl group-hover:scale-110 transition-transform origin-bottom">📍</span>
               <span className="text-ink-primary font-bold group-hover:text-brand-500 transition-colors flex items-center gap-1">
                 {event.stage}
-                <svg className="w-3 h-3 text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
+                {event.latitude && event.longitude && (
+                  <svg className="w-3 h-3 text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                )}
               </span>
-            </a>
+            </button>
             <div className="flex flex-col gap-1">
               <span className="text-xl">🎟️</span>
               <span className="text-ink-primary font-bold">{event.is_free ? 'Free' : `Gen: $${Number(event.general_price).toFixed(2)} | VIP: $${Number(event.vip_price).toFixed(2)}`}</span>
             </div>
           </div>
 
-          <div className="prose prose-sm sm:prose-base text-ink-secondary leading-relaxed mb-8 break-words max-w-full">
+          <div className="prose prose-sm sm:prose-base text-ink-secondary leading-relaxed mb-8 break-words max-w-full pointer-events-auto">
             <p className="text-lg leading-relaxed">{event.description}</p>
           </div>
 
-          <div className="mt-auto pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="mt-auto pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto">
             <div className="text-base font-bold text-ink-secondary bg-surface-1 px-4 py-2 rounded-xl flex-1 text-center sm:text-left">
               Tickets: <span className={sold ? 'text-coral-500 font-extrabold' : 'text-mint-600 font-extrabold'}>{event.tickets_available}</span>
             </div>
             <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-4">
-              <a 
-                href={`/map?zone=${event.stage.toLowerCase().replace(/\s+/g, '-')}`} 
-                className="btn-secondary btn-lg shadow-sm shrink-0 w-full sm:w-auto text-center flex items-center justify-center gap-2"
+              <button 
+                onClick={() => setShowMap(!showMap)} 
+                disabled={!event.latitude || !event.longitude}
+                className="btn-secondary btn-lg shadow-sm shrink-0 w-full sm:w-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>📍</span> View on Map
-              </a>
+                <span>{showMap ? '🖼️' : '📍'}</span> {showMap ? 'Hide Map' : 'View on Map'}
+              </button>
               {!sold && (
                 <a href={`/booking?event=${event.id}`} className="btn-primary btn-lg shadow-[0_8px_20px_-8px_rgba(251,113,133,0.6)] hover:shadow-[0_12px_25px_-8px_rgba(251,113,133,0.8)] shrink-0 w-full sm:w-auto text-center">
                   Book Ticket Now

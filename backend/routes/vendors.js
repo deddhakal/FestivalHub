@@ -49,7 +49,7 @@ router.get('/:id', async (req, res) => {
  * @access  Admin
  */
 router.post('/', requireAdmin, async (req, res) => {
-  const { name, description, category, location, image_url, is_active } = req.body;
+  const { name, stall_name, description, category, location, latitude, longitude, image_url, is_active } = req.body;
   if (!name || !category) {
     return res.status(400).json({ error: 'name and category are required' });
   }
@@ -59,8 +59,8 @@ router.post('/', requireAdmin, async (req, res) => {
   }
   try {
     const [result] = await db.query(
-      'INSERT INTO vendors (name, description, category, location, image_url, is_active) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, description, category, location, image_url, is_active !== undefined ? is_active : 1]
+      'INSERT INTO vendors (name, stall_name, description, category, location, latitude, longitude, image_url, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, stall_name, description, category, location, latitude, longitude, image_url, is_active !== undefined ? is_active : 1]
     );
     res.status(201).json({ message: 'Vendor created successfully', id: result.insertId });
   } catch (err) {
@@ -74,11 +74,11 @@ router.post('/', requireAdmin, async (req, res) => {
  * @access  Admin
  */
 router.put('/:id', requireAdmin, async (req, res) => {
-  const { name, description, category, location, image_url, is_active } = req.body;
+  const { name, stall_name, description, category, location, latitude, longitude, image_url, is_active } = req.body;
   try {
     const [result] = await db.query(
-      'UPDATE vendors SET name=?, description=?, category=?, location=?, image_url=?, is_active=? WHERE id=?',
-      [name, description, category, location, image_url, is_active, req.params.id]
+      'UPDATE vendors SET name=?, stall_name=?, description=?, category=?, location=?, latitude=?, longitude=?, image_url=?, is_active=? WHERE id=?',
+      [name, stall_name, description, category, location, latitude, longitude, image_url, is_active, req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Vendor not found' });
     res.json({ message: 'Vendor updated successfully' });

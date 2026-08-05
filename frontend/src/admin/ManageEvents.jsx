@@ -1,15 +1,95 @@
 import { useState, useEffect } from 'react';
 import { getEvents, createEvent, updateEvent, deleteEvent, uploadImage } from '../services/api';
 import { LoadingSpinner, EmptyState } from '../components/UI';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
 
 const BLANK = {
   title: '', description: '', stage: 'Main Stage',
   event_date: '', start_time: '', end_time: '',
   category: 'Pop', tickets_available: 100, is_free: 1, general_price: 0, vip_price: 0,
+  latitude: '', longitude: '',
 };
 
 const STAGES     = ['Main Stage', 'Dance Arena', 'Garden Stage', 'Family Zone'];
 const CATEGORIES = ['Electronic', 'Pop', 'Rock', 'Jazz', 'Reggae', 'Dance', 'Acoustic', 'Family', 'Ceremony', 'Wellness'];
+
+const defaultIcon = L.icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+function MapController({ centerPos }) {
+  const map = useMap();
+  useEffect(() => {
+    if (centerPos && centerPos[0] && centerPos[1]) {
+      map.flyTo(centerPos, 16);
+    }
+  }, [centerPos, map]);
+  return null;
+}
+
+function LocationPicker({ lat, lng, onChange }) {
+  const [search, setSearch] = useState('');
+  const position = lat && lng ? [lat, lng] : [-37.7983, 144.9610];
+  
+  function MapEvents() {
+    useMapEvents({
+      click(e) {
+        onChange(e.latlng.lat, e.latlng.lng);
+      },
+    });
+    return null;
+  }
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!search) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(search)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const newLat = parseFloat(data[0].lat);
+        const newLng = parseFloat(data[0].lon);
+        onChange(newLat, newLng);
+      } else {
+        alert('Location not found');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Search failed');
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2 mt-2">
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <input 
+          type="text" 
+          value={search} 
+          onChange={(e) => setSearch(e.target.value)} 
+          placeholder="Search location (e.g. Melbourne University)" 
+          className="field-input py-1.5 px-3 text-sm flex-1 bg-surface-1" 
+        />
+        <button type="submit" className="btn-secondary py-1.5 px-3 text-xs">Search</button>
+      </form>
+      <div className="h-48 w-full rounded-xl overflow-hidden border border-surface-border z-0 relative">
+        <MapContainer center={position} zoom={16} className="h-full w-full bg-surface-1">
+          <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+          <MapEvents />
+          <MapController centerPos={lat && lng ? [lat, lng] : null} />
+          {lat && lng && <Marker position={[lat, lng]} icon={defaultIcon} />}
+        </MapContainer>
+        <div className="absolute bottom-2 left-2 z-[400] bg-white/90 px-2 py-1 text-2xs font-bold rounded shadow-sm text-ink-secondary pointer-events-none">
+          Click map to pin exactly
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Modal({ title, children, onClose }) {
   return (
@@ -113,6 +193,22 @@ function EventForm({ initial = BLANK, onSave, onCancel, saving }) {
           </div>
         </div>
       )}
+
+      {/* Map Location Picker */}
+      <div className="pt-2 border-t border-surface-border mt-6">
+        <label className="field-label">Map Location</label>
+        <LocationPicker 
+          lat={form.latitude} 
+          lng={form.longitude} 
+          onChange={(lat, lng) => { u('latitude', lat); u('longitude', lng); }} 
+        />
+        {form.latitude && form.longitude && (
+          <p className="text-2xs text-ink-tertiary mt-2">
+            Selected: {Number(form.latitude).toFixed(4)}, {Number(form.longitude).toFixed(4)}
+          </p>
+        )}
+      </div>
+
       <div className="flex gap-3 pt-4 mt-6 border-t border-surface-border">
         <button type="submit" disabled={saving} className="btn-primary flex-1">
           {saving ? 'Saving...' : 'Save Event'}
@@ -209,58 +305,76 @@ export default function ManageEvents() {
         </div>
       ) : (
         <div className="card border border-surface-border overflow-hidden">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Event Details</th>
-                <th>Date</th>
-                <th>Stage & Time</th>
-                <th>Availability</th>
-                <th className="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map(ev => (
-                <tr key={ev.id}>
-                  <td>
-                    <p className="font-bold text-ink-primary">{ev.title}</p>
-                    <p className="text-ink-tertiary text-xs font-semibold uppercase tracking-wider mt-0.5">{ev.category}</p>
-                  </td>
-                  <td className="text-ink-secondary font-medium">
-                    {new Date(ev.event_date).toLocaleDateString('en-US', { weekday:'short', day:'numeric', month:'short' })}
-                  </td>
-                  <td>
-                    <p className="text-ink-secondary font-medium">{ev.stage}</p>
-                    <p className="text-ink-tertiary text-xs font-semibold">{ev.start_time?.slice(0,5)}</p>
-                  </td>
-                  <td>
-                    <span className={`chip ${ev.tickets_available < 30 ? 'chip-warning' : 'chip-success'} mb-1 block w-fit`}>
-                      {ev.tickets_available} tickets
-                    </span>
-                    <span className="text-xs font-bold text-ink-secondary">
-                      {ev.is_free ? 'Free' : `From $${Number(ev.general_price).toFixed(2)}`}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="flex gap-2 justify-end">
-                      <button
-                        onClick={() => setModal({ edit: ev })}
-                        className="btn-secondary px-3 py-1.5 text-xs rounded-lg"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => setModal({ delete: ev })}
-                        className="bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold px-3 py-1.5 text-xs rounded-lg shadow-sm transition-all duration-200"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead>
+                <tr className="border-b border-surface-border text-ink-tertiary">
+                  <th className="font-semibold py-3 px-4">Event</th>
+                  <th className="font-semibold py-3 px-4">Date & Time</th>
+                  <th className="font-semibold py-3 px-4">Stage / Location</th>
+                  <th className="font-semibold py-3 px-4">Tickets</th>
+                  <th className="font-semibold py-3 px-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-surface-border">
+                {events.map(ev => (
+                  <tr key={ev.id} className="hover:bg-surface-1/50 transition-colors">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        {ev.image_url ? (
+                          <img src={`http://localhost:5000${ev.image_url}`} alt="" className="w-10 h-10 rounded-lg object-cover bg-surface-2 border border-surface-border shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-surface-2 border border-surface-border flex items-center justify-center shrink-0 text-ink-tertiary text-xs font-bold">
+                            IMG
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-bold text-ink-primary text-base">{ev.title}</p>
+                          <span className="badge badge-primary mt-1 text-2xs px-2 py-0.5">{ev.category}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="font-medium text-ink-primary">{ev.event_date.slice(0, 10)}</p>
+                      <p className="text-xs text-ink-tertiary">{ev.start_time.slice(0, 5)} {ev.end_time ? `- ${ev.end_time.slice(0, 5)}` : ''}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="font-medium text-ink-primary">{ev.stage}</p>
+                      {ev.latitude && ev.longitude ? (
+                        <p className="text-2xs text-brand-500 font-bold mt-0.5">📍 Pinned</p>
+                      ) : (
+                        <p className="text-2xs text-ink-tertiary mt-0.5">No Map Pin</p>
+                      )}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`chip ${ev.tickets_available < 30 ? 'chip-warning' : 'chip-success'} mb-1 block w-fit`}>
+                        {ev.tickets_available} tickets
+                      </span>
+                      <span className="text-xs font-bold text-ink-secondary">
+                        {ev.is_free ? 'Free' : `From $${Number(ev.general_price).toFixed(2)}`}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={() => setModal({ edit: ev })}
+                          className="btn-secondary px-3 py-1.5 text-xs rounded-lg"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setModal({ delete: ev })}
+                          className="bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold px-3 py-1.5 text-xs rounded-lg shadow-sm transition-all duration-200"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
