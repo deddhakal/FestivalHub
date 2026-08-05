@@ -186,6 +186,48 @@
     animation: ticker-reverse 40s linear infinite;
     will-change: transform;
   }
+
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .loop-glitch {
+    position: relative;
+    display: inline-block;
+  }
+  .loop-glitch::before,
+  .loop-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background-color: #141E34;
+  }
+  .loop-glitch::before {
+    color: #ff003c;
+    clip-path: polygon(0 14%, 100% 14%, 100% 36%, 0 36%);
+    animation: glitch-anim-1 1.9s infinite;
+  }
+  .loop-glitch::after {
+    color: #00f5ff;
+    clip-path: polygon(0 58%, 100% 58%, 100% 80%, 0 80%);
+    animation: glitch-anim-2 1.9s infinite;
+  }
+  @keyframes glitch-anim-1 {
+    0%, 11.4% { opacity: 1; transform: translateX(-5px) skewX(-2deg); }
+    11.5%, 23% { opacity: 1; transform: translateX(6px) skewX(3deg); }
+    23.1%, 100% { opacity: 0; transform: none; }
+  }
+  @keyframes glitch-anim-2 {
+    0%, 11.4% { opacity: 1; transform: translateX(5px) skewX(2deg); }
+    11.5%, 23% { opacity: 1; transform: translateX(-6px) skewX(-3deg); }
+    23.1%, 100% { opacity: 0; transform: none; }
+  }
+  @keyframes shimmer-text {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
 }
 
 /* ── Print Styles ──────────────────────────────────────────────── */

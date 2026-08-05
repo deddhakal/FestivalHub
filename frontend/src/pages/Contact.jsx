@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { submitContact } from '../services/api';
 
 const SUBJECTS = [
+  'Event Planning',
   'Ticket Inquiry',
   'Accessibility',
   'Vendor / Sponsorship',
@@ -67,11 +69,21 @@ function SuccessView({ onReset }) {
 }
 
 export default function Contact() {
+  const location = useLocation();
+  
   const [form,        setForm]        = useState({ name: '', email: '', subject: '', message: '' });
   const [errors,      setErrors]      = useState({});
   const [submitting,  setSubmitting]  = useState(false);
   const [success,     setSuccess]     = useState(false);
   const [serverError, setServerError] = useState('');
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const subjectParam = searchParams.get('subject');
+    if (subjectParam && SUBJECTS.includes(subjectParam)) {
+      setForm(f => ({ ...f, subject: subjectParam }));
+    }
+  }, [location]);
 
   const update = (field, value) => {
     setForm(f => ({ ...f, [field]: value }));
@@ -109,10 +121,23 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-16">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
+    <div className="min-h-screen pt-32 pb-16 relative overflow-hidden bg-surface-50">
+      {/* Animated Background Orbs */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-coral-500/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-brand-500/10 blur-[120px] rounded-full" />
+      </div>
 
-        {/* Page header */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+        
+        {/* Glassmorphism Container */}
+        <div className="relative bg-white/40 backdrop-blur-3xl border border-white/60 rounded-[3rem] p-8 md:p-16 shadow-[0_20px_60px_rgba(0,0,0,0.05)] overflow-hidden">
+          
+          {/* Noise Texture Overlay */}
+          <div className="absolute inset-0 bg-noise opacity-[0.05] mix-blend-multiply pointer-events-none z-0" />
+
+          <div className="relative z-10">
+            {/* Page header */}
         <div className="py-10 md:py-14 border-b border-surface-border mb-10 animate-slide-up">
           <p className="eyebrow mb-3">Get in touch</p>
           <h1 className="font-display text-4xl md:text-5xl text-ink-primary mb-2">Contact Organisers</h1>
@@ -248,9 +273,10 @@ export default function Contact() {
                 <p className="text-xs text-ink-secondary leading-relaxed">{a}</p>
               </div>
             ))}
+            </div>
           </div>
         </div>
-
+        </div>
       </div>
     </div>
   );

@@ -1,78 +1,31 @@
 import { Link } from 'react-router-dom';
 
-
-const LINKS = {
-  'Platform': [
-    { to: '/events',          label: 'Browse Events' },
-    { to: '/booking',         label: 'Book Tickets' },
-    { to: '/admin/login',     label: 'Host an Event' },
-    { to: '/announcements',   label: 'Updates & Alerts' },
-  ],
-  'Resources': [
-    { to: '/map',             label: 'Venue Maps' },
-    { to: '/food-attractions',label: 'Vendors' },
-    { to: '/contact',         label: 'Help Center' },
-    { to: '/contact',         label: 'Contact Support' },
-  ],
-  'Company': [
-    { to: '#', label: 'About Us' },
-    { to: '#', label: 'Careers' },
-    { to: '#', label: 'Privacy Policy' },
-    { to: '#', label: 'Terms of Service' },
-  ]
-};
-
 export default function Footer() {
   return (
-    <footer className="border-t border-surface-border bg-surface-0 mt-20 pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
-
-          {/* Brand column */}
-          <div className="lg:col-span-2">
-            <div className="font-display text-2xl text-ink-primary mb-4 font-bold">
-              Festival<span className="text-brand-500">Hub</span>
-            </div>
-            <p className="text-sm text-ink-secondary leading-relaxed mb-6 max-w-md">
-              The all-in-one event management platform. Whether you're organizing a local meetup or a massive music festival, we provide the tools you need to succeed.
-            </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-surface-border bg-white text-xs text-ink-primary shadow-sm font-medium">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-signal-success opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-signal-success"></span>
-              </span>
-              All systems operational
-            </div>
-          </div>
-
-          {/* Link groups */}
-          {Object.entries(LINKS).map(([group, items]) => (
-            <div key={group}>
-              <p className="font-bold text-ink-primary mb-5 tracking-wide">{group}</p>
-              <ul className="space-y-3">
-                {items.map(({ to, label }, i) => (
-                  <li key={i}>
-                    <Link
-                      to={to}
-                      className="text-sm text-ink-secondary hover:text-brand-500 hover:underline underline-offset-4 transition-all duration-200"
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    <footer className="relative border-t border-white/10 bg-[#141E34] overflow-hidden mt-0 pt-10 pb-10">
+      {/* Noise Texture Overlay */}
+      <div className="absolute inset-0 bg-noise opacity-[0.12] pointer-events-none z-0" />
+      
+      <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        
+        {/* Brand */}
+        <div className="font-display text-xl text-white font-bold tracking-wide">
+          Festival<span className="text-coral-500">Hub</span>
         </div>
 
-        {/* Bottom bar */}
-        <div className="pt-8 border-t border-surface-border flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-ink-tertiary">
-            © {new Date().getFullYear()} Festival Hub Inc. All rights reserved.
-          </div>
-
+        {/* Essential Links */}
+        <div className="flex flex-wrap items-center justify-center gap-8">
+          <Link to="/events" className="text-sm font-semibold tracking-wide text-blue-100/60 hover:text-coral-400 transition-colors">Events</Link>
+          <Link to="/booking" className="text-sm font-semibold tracking-wide text-blue-100/60 hover:text-coral-400 transition-colors">Tickets</Link>
+          <Link to="/contact" className="text-sm font-semibold tracking-wide text-blue-100/60 hover:text-coral-400 transition-colors">Support</Link>
+          <Link to="#" className="text-sm font-semibold tracking-wide text-blue-100/60 hover:text-coral-400 transition-colors">Terms</Link>
         </div>
+
+        {/* Copyright */}
+        <div className="text-xs font-medium tracking-wide text-blue-100/40">
+          © {new Date().getFullYear()} Festival Hub.
+        </div>
+        
       </div>
     </footer>
   );
