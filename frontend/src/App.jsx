@@ -8,6 +8,7 @@ import { LoadingSpinner } from './components/UI';
 
 // Visitor pages
 import Home            from './pages/Home';
+import Dashboard       from './pages/Dashboard';
 import Events          from './pages/Events';
 import EventDetail     from './pages/EventDetail';
 import Booking         from './pages/Booking';
@@ -67,6 +68,7 @@ export default function App() {
 
           {/* ── Visitor routes ─────────────────────────── */}
           <Route path="/" element={<VisitorLayout><Home /></VisitorLayout>} />
+          <Route path="/dashboard" element={<VisitorLayout><Dashboard /></VisitorLayout>} />
           <Route path="/events" element={<VisitorLayout><Events /></VisitorLayout>} />
           <Route path="/events/:id" element={<VisitorLayout><EventDetail /></VisitorLayout>} />
           <Route path="/booking" element={<VisitorLayout><Booking /></VisitorLayout>} />
