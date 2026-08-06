@@ -208,62 +208,116 @@ function EventModal({ event, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="px-8 pb-8 pt-0 relative z-10 flex-1 flex flex-col -mt-16 sm:-mt-24 pointer-events-none">
-          <div className="flex flex-wrap gap-2 mb-4 pointer-events-auto">
-            <span className="badge badge-primary shadow-sm backdrop-blur-md bg-surface-0/80 px-3 py-1 text-xs">{event.category}</span>
-            {sold && <span className="badge badge-coral shadow-sm backdrop-blur-md bg-surface-0/80 px-3 py-1 text-xs">Sold Out</span>}
+        <div className="px-6 sm:px-10 pb-10 pt-0 relative z-10 flex-1 flex flex-col -mt-12 sm:-mt-20 pointer-events-none">
+          <div className="flex flex-wrap gap-2 mb-6 pointer-events-auto">
+            <span className="badge shadow-lg backdrop-blur-xl bg-white/90 text-ink-primary px-4 py-1.5 text-sm font-bold rounded-full border border-surface-border">{event.category}</span>
+            {sold && <span className="badge shadow-lg backdrop-blur-xl bg-coral-500/90 text-white px-4 py-1.5 text-sm font-bold rounded-full border border-coral-500/50">Sold Out</span>}
           </div>
 
-          <h2 className="font-display font-extrabold text-4xl sm:text-6xl text-ink-primary leading-tight mb-6 drop-shadow-sm">{event.title}</h2>
+          <h2 className="font-display font-black text-5xl sm:text-6xl text-ink-primary leading-[1.1] mb-8 drop-shadow-md tracking-tight pointer-events-auto">
+            {event.title}
+          </h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-semibold text-ink-secondary mb-8 bg-surface-0/80 backdrop-blur-xl p-5 rounded-2xl border border-surface-border shadow-soft">
-            <div className="flex flex-col gap-1">
-              <span className="text-xl">📅</span>
-              <span className="text-ink-primary font-bold">{formatDate(event.event_date)}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xl">⏰</span>
-              <span className="text-ink-primary font-bold">{formatTime(event.start_time)} {event.end_time && `– ${formatTime(event.end_time)}`}</span>
-            </div>
-            <button onClick={() => { if(event.latitude && event.longitude) setShowMap(true); }} className="flex flex-col gap-1 group cursor-pointer hover:bg-surface-1 p-2 -m-2 rounded-xl transition-colors pointer-events-auto text-left">
-              <span className="text-xl group-hover:scale-110 transition-transform origin-bottom">📍</span>
-              <span className="text-ink-primary font-bold group-hover:text-brand-500 transition-colors flex items-center gap-1">
-                {event.stage}
-                {event.latitude && event.longitude && (
-                  <svg className="w-3 h-3 text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                )}
-              </span>
-            </button>
-            <div className="flex flex-col gap-1">
-              <span className="text-xl">🎟️</span>
-              <span className="text-ink-primary font-bold">{event.is_free ? 'Free' : `Gen: $${Number(event.general_price).toFixed(2)} | VIP: $${Number(event.vip_price).toFixed(2)}`}</span>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 pointer-events-auto">
+             <div className="bg-white/80 backdrop-blur-xl p-5 rounded-3xl border border-surface-border shadow-lg shadow-surface-border/50 flex items-start gap-4 transition-transform hover:-translate-y-1 duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center shrink-0 shadow-inner">
+                    <svg className="w-6 h-6 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <p className="text-xs font-bold text-ink-tertiary uppercase tracking-wider mb-1">Date & Time</p>
+                    <p className="text-ink-primary font-bold text-base">{formatDate(event.event_date)}</p>
+                    <p className="text-ink-secondary text-sm font-semibold mt-0.5">{formatTime(event.start_time)} {event.end_time && `– ${formatTime(event.end_time)}`}</p>
+                </div>
+             </div>
+
+             <div className="bg-white/80 backdrop-blur-xl p-5 rounded-3xl border border-surface-border shadow-lg shadow-surface-border/50 flex items-start gap-4 transition-transform hover:-translate-y-1 duration-300 cursor-pointer group" onClick={() => { if(event.latitude && event.longitude) setShowMap(true); }}>
+                <div className="w-12 h-12 rounded-2xl bg-coral-50 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                    <svg className="w-6 h-6 text-coral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <div className="flex-1">
+                    <p className="text-xs font-bold text-ink-tertiary uppercase tracking-wider mb-1">Location</p>
+                    <div className="text-ink-primary font-bold text-base flex items-center gap-1 group-hover:text-coral-500 transition-colors">
+                        {event.stage}
+                        {event.latitude && event.longitude && (
+                          <svg className="w-4 h-4 text-coral-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        )}
+                    </div>
+                    <p className="text-ink-secondary text-sm font-semibold mt-0.5">{event.latitude && event.longitude ? 'Click to view map' : 'Stage area'}</p>
+                </div>
+             </div>
+
+             <div className="bg-white/80 backdrop-blur-xl p-5 rounded-3xl border border-surface-border shadow-lg shadow-surface-border/50 flex items-start gap-4 transition-transform hover:-translate-y-1 duration-300 sm:col-span-2">
+                <div className="w-12 h-12 rounded-2xl bg-mint-50 flex items-center justify-center shrink-0 shadow-inner">
+                    <svg className="w-6 h-6 text-mint-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                    </svg>
+                </div>
+                <div className="flex-1 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <p className="text-xs font-bold text-ink-tertiary uppercase tracking-wider mb-1">Tickets</p>
+                        {event.is_free ? (
+                            <>
+                              <p className="text-mint-600 font-extrabold text-lg">Free Entry</p>
+                              <p className="text-ink-secondary text-sm font-semibold mt-0.5">First come, first served (Limit 100)</p>
+                            </>
+                        ) : (
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-6">
+                              <p className="text-ink-primary font-bold text-base"><span className="text-ink-secondary font-medium mr-1">General:</span>${Number(event.general_price).toFixed(2)}</p>
+                              <p className="text-ink-primary font-bold text-base"><span className="text-ink-secondary font-medium mr-1">VIP:</span>${Number(event.vip_price).toFixed(2)}</p>
+                            </div>
+                        )}
+                    </div>
+                    {!event.is_free && (
+                        <div className="text-sm font-bold text-ink-secondary bg-surface-1 px-4 py-2 rounded-xl border border-surface-border">
+                          Available: <span className={sold ? 'text-coral-500' : 'text-mint-600'}>{event.tickets_available}</span>
+                        </div>
+                    )}
+                </div>
+             </div>
           </div>
 
-          <div className="prose prose-sm sm:prose-base text-ink-secondary leading-relaxed mb-8 break-words max-w-full pointer-events-auto">
+          <div className="prose prose-sm sm:prose-base text-ink-secondary font-medium leading-relaxed mb-8 pointer-events-auto break-words max-w-full">
             <p className="text-lg leading-relaxed">{event.description}</p>
           </div>
 
-          <div className="mt-auto pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto">
-            <div className="text-base font-bold text-ink-secondary bg-surface-1 px-4 py-2 rounded-xl flex-1 text-center sm:text-left">
-              Tickets: <span className={sold ? 'text-coral-500 font-extrabold' : 'text-mint-600 font-extrabold'}>{event.tickets_available}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-4">
+          <div className="mt-auto pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-end gap-4 pointer-events-auto">
+            <div className="flex flex-col sm:flex-row w-full gap-4 justify-end">
               <button 
                 onClick={() => setShowMap(!showMap)} 
                 disabled={!event.latitude || !event.longitude}
-                className="btn-secondary btn-lg shadow-sm shrink-0 w-full sm:w-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-secondary btn-lg shadow-sm w-full sm:w-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-white border-2 hover:bg-surface-1 transition-all"
               >
-                <span>{showMap ? '🖼️' : '📍'}</span> {showMap ? 'Hide Map' : 'View on Map'}
+                {showMap ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                )}
+                {showMap ? 'Hide Map' : 'View on Map'}
               </button>
               {event.is_free ? (
-                <div className="flex items-center gap-2 px-4 py-3 bg-surface-1/50 rounded-xl text-ink-primary border border-surface-border/50 text-sm font-bold w-full sm:w-auto text-center justify-center shadow-sm">
-                  🎟️ Free Entry • First come, first served (Limit 100)
+                <div className="flex items-center gap-2 px-6 py-3 bg-mint-500/10 text-mint-700 rounded-xl font-bold w-full sm:w-auto text-center justify-center shadow-sm border border-mint-500/20">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Free Event
                 </div>
               ) : !sold && (
-                <a href={`/booking?event=${event.id}`} className="btn-primary btn-lg shadow-[0_8px_20px_-8px_rgba(251,113,133,0.6)] hover:shadow-[0_12px_25px_-8px_rgba(251,113,133,0.8)] shrink-0 w-full sm:w-auto text-center">
+                <a href={`/booking?event=${event.id}`} className="btn-primary btn-lg shadow-xl shadow-brand-500/30 hover:shadow-2xl hover:shadow-brand-500/40 hover:-translate-y-0.5 transition-all w-full sm:w-auto text-center flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                  </svg>
                   Book Ticket Now
                 </a>
               )}
