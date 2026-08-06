@@ -77,7 +77,7 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/booking" className="btn-primary btn-sm">
+          <Link to="/events" className="btn-primary btn-sm">
             Get Tickets
           </Link>
           <Link
@@ -118,7 +118,7 @@ export default function Navbar() {
             </Link>
           ))}
           <div className="mt-3 pt-3 border-t border-surface-border">
-            <Link to="/booking" className="btn-primary btn-md w-full">
+            <Link to="/events" className="btn-primary btn-md w-full">
               Get Tickets
             </Link>
           </div>
