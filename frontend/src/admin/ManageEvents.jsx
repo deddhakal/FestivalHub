@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getEvents, createEvent, updateEvent, deleteEvent, uploadImage } from '../services/api';
-import { LoadingSpinner, EmptyState } from '../components/UI';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import { LoadingSpinner } from '../components/UI';
+import LocationPicker from '../components/LocationPicker';
+import TimeInput from '../components/TimeInput';
 
 const BLANK = {
   title: '', description: '', stage: 'Main Stage',
@@ -14,92 +14,29 @@ const BLANK = {
 const STAGES     = ['Main Stage', 'Dance Arena', 'Garden Stage', 'Family Zone'];
 const CATEGORIES = ['Electronic', 'Pop', 'Rock', 'Jazz', 'Reggae', 'Dance', 'Acoustic', 'Family', 'Ceremony', 'Wellness'];
 
-const defaultIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-function MapController({ centerPos }) {
-  const map = useMap();
-  useEffect(() => {
-    if (centerPos && centerPos[0] && centerPos[1]) {
-      map.flyTo(centerPos, 16);
-    }
-  }, [centerPos, map]);
-  return null;
-}
-
-function LocationPicker({ lat, lng, onChange }) {
-  const [search, setSearch] = useState('');
-  const position = lat && lng ? [lat, lng] : [-37.7983, 144.9610];
-  
-  function MapEvents() {
-    useMapEvents({
-      click(e) {
-        onChange(e.latlng.lat, e.latlng.lng);
-      },
-    });
-    return null;
-  }
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!search) return;
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(search)}`);
-      const data = await res.json();
-      if (data && data.length > 0) {
-        const newLat = parseFloat(data[0].lat);
-        const newLng = parseFloat(data[0].lon);
-        onChange(newLat, newLng);
-      } else {
-        alert('Location not found');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Search failed');
-    }
-  };
-
+function Modal({ title, children, onClose }) {
   return (
-    <div className="flex flex-col gap-2 mt-2">
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <input 
-          type="text" 
-          value={search} 
-          onChange={(e) => setSearch(e.target.value)} 
-          placeholder="Search location (e.g. Melbourne University)" 
-          className="field-input py-1.5 px-3 text-sm flex-1 bg-surface-1" 
-        />
-        <button type="submit" className="btn-secondary py-1.5 px-3 text-xs">Search</button>
-      </form>
-      <div className="h-48 w-full rounded-xl overflow-hidden border border-surface-border z-0 relative">
-        <MapContainer center={position} zoom={16} className="h-full w-full bg-surface-1">
-          <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
-          <MapEvents />
-          <MapController centerPos={lat && lng ? [lat, lng] : null} />
-          {lat && lng && <Marker position={[lat, lng]} icon={defaultIcon} />}
-        </MapContainer>
-        <div className="absolute bottom-2 left-2 z-[400] bg-white/90 px-2 py-1 text-2xs font-bold rounded shadow-sm text-ink-secondary pointer-events-none">
-          Click map to pin exactly
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-primary/30 backdrop-blur-sm">
+      <div className="bg-surface-0 border border-surface-border shadow-lift rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up relative flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-surface-border sticky top-0 bg-surface-0/95 backdrop-blur z-10">
+          <h2 className="font-display font-bold text-ink-primary text-xl">{title}</h2>
+          <button onClick={onClose} className="text-ink-tertiary hover:text-ink-primary text-xl transition-colors">✕</button>
         </div>
+        <div className="p-6 bg-surface-1/30 flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
   );
 }
 
-function Modal({ title, children, onClose }) {
+function FormSection({ title, icon, children }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-primary/20 backdrop-blur-sm">
-      <div className="bg-surface-0 border border-surface-border shadow-lift rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up">
-        <div className="flex items-center justify-between p-6 border-b border-surface-border sticky top-0 bg-surface-0/95 backdrop-blur z-10">
-          <h2 className="font-display font-bold text-ink-primary text-xl">{title}</h2>
-          <button onClick={onClose} className="text-ink-tertiary hover:text-ink-primary text-xl transition-colors">✕</button>
-        </div>
-        <div className="p-6">{children}</div>
+    <div className="bg-surface-0 border border-surface-border rounded-2xl overflow-hidden mb-6 shadow-sm">
+      <div className="bg-surface-1 px-5 py-3 border-b border-surface-border flex items-center gap-2">
+        {icon && <span className="text-xl">{icon}</span>}
+        <h3 className="font-display font-bold text-ink-primary">{title}</h3>
+      </div>
+      <div className="p-5 space-y-5">
+        {children}
       </div>
     </div>
   );
@@ -120,100 +57,114 @@ function EventForm({ initial = BLANK, onSave, onCancel, saving }) {
   };
 
   return (
-    <form onSubmit={e => { e.preventDefault(); onSave(form, imageFile); }} className="space-y-5">
-      <div>
-        <label className="field-label">Event Title *</label>
-        <input className="field-input" placeholder="e.g. Summer Kickoff" value={form.title} onChange={e => u('title', e.target.value)} required />
-      </div>
-      <div>
-        <label className="field-label">Description</label>
-        <textarea className="field-input resize-none" placeholder="Details about the event..." rows={3} value={form.description} onChange={e => u('description', e.target.value)} />
-      </div>
-      <div>
-        <label className="field-label">Event Image</label>
-        <div className="flex items-center gap-4">
-          {preview && <img src={preview} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-surface-border shrink-0" />}
-          <input type="file" accept="image/*" className="field-input" onChange={handleFileChange} />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="field-label">Stage</label>
-          <input type="text" className="field-input bg-white" placeholder="e.g. Main Stage" value={form.stage} onChange={e => u('stage', e.target.value)} />
-        </div>
-        <div>
-          <label className="field-label">Category</label>
-          <input type="text" list="category-options" className="field-input bg-white" placeholder="e.g. Pop" value={form.category} onChange={e => u('category', e.target.value)} />
-          <datalist id="category-options">
-            {CATEGORIES.map(c => <option key={c} value={c} />)}
-          </datalist>
-        </div>
-      </div>
-      <div>
-        <label className="field-label">Date (YYYY-MM-DD) *</label>
-        <input type="text" className="field-input" placeholder="e.g. 2026-10-15" value={form.event_date} onChange={e => u('event_date', e.target.value)} required />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="field-label">Start Time (HH:MM) *</label>
-          <input type="text" className="field-input" placeholder="e.g. 18:00" value={form.start_time} onChange={e => u('start_time', e.target.value)} required />
-        </div>
-        <div>
-          <label className="field-label">End Time (HH:MM)</label>
-          <input type="text" className="field-input" placeholder="e.g. 23:00" value={form.end_time} onChange={e => u('end_time', e.target.value)} />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="field-label">Tickets Available</label>
-          <input type="number" min="0" className="field-input" value={form.tickets_available} onChange={e => u('tickets_available', Number(e.target.value))} />
-        </div>
-        <div>
-          <label className="field-label">Cost</label>
-          <div className="flex bg-surface-1 rounded-xl p-1 border border-surface-border">
-            <button type="button" onClick={() => u('is_free', 1)} className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${form.is_free ? 'bg-white shadow-soft text-ink-primary' : 'text-ink-secondary hover:text-ink-primary'}`}>
-              Free
-            </button>
-            <button type="button" onClick={() => u('is_free', 0)} className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${!form.is_free ? 'bg-white shadow-soft text-ink-primary' : 'text-ink-secondary hover:text-ink-primary'}`}>
-              Paid
-            </button>
-          </div>
-        </div>
-      </div>
+    <form onSubmit={e => { e.preventDefault(); onSave(form, imageFile); }}>
       
-      {!form.is_free && (
-        <div className="grid grid-cols-2 gap-4 animate-fade-in p-4 bg-surface-1 rounded-xl border border-surface-border">
+      <FormSection title="Basic Information" icon="📋">
+        <div>
+          <label className="field-label">Event Title *</label>
+          <input className="field-input" placeholder="e.g. Summer Kickoff" value={form.title} onChange={e => u('title', e.target.value)} required />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="field-label">General Ticket Price ($)</label>
-            <input type="text" inputMode="decimal" className="field-input bg-white" value={form.general_price} onChange={e => u('general_price', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="e.g. 45.00" />
+            <label className="field-label">Stage</label>
+            <input type="text" list="stage-options" className="field-input bg-white" placeholder="e.g. Main Stage" value={form.stage} onChange={e => u('stage', e.target.value)} />
+            <datalist id="stage-options">
+              {STAGES.map(s => <option key={s} value={s} />)}
+            </datalist>
           </div>
           <div>
-            <label className="field-label">VIP Ticket Price ($)</label>
-            <input type="text" inputMode="decimal" className="field-input bg-white" value={form.vip_price} onChange={e => u('vip_price', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="e.g. 120.00" />
+            <label className="field-label">Category</label>
+            <input type="text" list="category-options" className="field-input bg-white" placeholder="e.g. Pop" value={form.category} onChange={e => u('category', e.target.value)} />
+            <datalist id="category-options">
+              {CATEGORIES.map(c => <option key={c} value={c} />)}
+            </datalist>
           </div>
         </div>
-      )}
+        <div>
+          <label className="field-label">Event Image</label>
+          <div className="flex items-center gap-4">
+            {preview && <img src={preview} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-surface-border shrink-0" />}
+            <input type="file" accept="image/*" className="field-input" onChange={handleFileChange} />
+          </div>
+        </div>
+        <div>
+          <label className="field-label">Description</label>
+          <textarea className="field-input resize-none bg-white" placeholder="Details about the event..." rows={3} value={form.description} onChange={e => u('description', e.target.value)} />
+        </div>
+      </FormSection>
 
-      {/* Map Location Picker */}
-      <div className="pt-2 border-t border-surface-border mt-6">
-        <label className="field-label">Map Location</label>
-        <LocationPicker 
-          lat={form.latitude} 
-          lng={form.longitude} 
-          onChange={(lat, lng) => { u('latitude', lat); u('longitude', lng); }} 
-        />
-        {form.latitude && form.longitude && (
-          <p className="text-2xs text-ink-tertiary mt-2">
-            Selected: {Number(form.latitude).toFixed(4)}, {Number(form.longitude).toFixed(4)}
-          </p>
+      <FormSection title="Date & Time" icon="📅">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="field-label">Date *</label>
+            <input type="date" className="field-input bg-white" value={form.event_date ? form.event_date.slice(0,10) : ''} onChange={e => u('event_date', e.target.value)} required />
+          </div>
+          <div>
+            <label className="field-label">Start Time *</label>
+            <TimeInput value={form.start_time} onChange={val => u('start_time', val)} />
+          </div>
+          <div>
+            <label className="field-label">End Time</label>
+            <TimeInput value={form.end_time} onChange={val => u('end_time', val)} />
+          </div>
+        </div>
+      </FormSection>
+
+      <FormSection title="Ticketing & Pricing" icon="🎟️">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="field-label">Tickets Available</label>
+            <input type="number" min="0" className="field-input bg-white" value={form.tickets_available} onChange={e => u('tickets_available', Number(e.target.value))} />
+          </div>
+          <div>
+            <label className="field-label">Admission Type</label>
+            <div className="flex bg-surface-1 rounded-xl p-1 border border-surface-border">
+              <button type="button" onClick={() => u('is_free', 1)} className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${form.is_free ? 'bg-white shadow-soft text-ink-primary' : 'text-ink-secondary hover:text-ink-primary'}`}>
+                Free
+              </button>
+              <button type="button" onClick={() => u('is_free', 0)} className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${!form.is_free ? 'bg-white shadow-soft text-ink-primary' : 'text-ink-secondary hover:text-ink-primary'}`}>
+                Paid
+              </button>
+            </div>
+          </div>
+        </div>
+        {!form.is_free && (
+          <div className="grid grid-cols-2 gap-4 animate-fade-in p-4 bg-surface-1 rounded-xl border border-surface-border">
+            <div>
+              <label className="field-label">General Ticket Price ($)</label>
+              <input type="text" inputMode="decimal" className="field-input bg-white" value={form.general_price} onChange={e => u('general_price', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="e.g. 45.00" />
+            </div>
+            <div>
+              <label className="field-label">VIP Ticket Price ($)</label>
+              <input type="text" inputMode="decimal" className="field-input bg-white" value={form.vip_price} onChange={e => u('vip_price', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="e.g. 120.00" />
+            </div>
+          </div>
         )}
-      </div>
+      </FormSection>
 
-      <div className="flex gap-3 pt-4 mt-6 border-t border-surface-border">
+      <FormSection title="Location" icon="📍">
+        <div className="flex gap-4 mb-2">
+          <div className="flex-1">
+            <label className="field-label">Latitude</label>
+            <input type="number" step="any" className="field-input bg-white text-sm" placeholder="e.g. -37.7983" value={form.latitude} onChange={e => u('latitude', e.target.value)} />
+          </div>
+          <div className="flex-1">
+            <label className="field-label">Longitude</label>
+            <input type="number" step="any" className="field-input bg-white text-sm" placeholder="e.g. 144.9610" value={form.longitude} onChange={e => u('longitude', e.target.value)} />
+          </div>
+        </div>
+        <LocationPicker 
+          lat={form.latitude ? parseFloat(form.latitude) : null} 
+          lng={form.longitude ? parseFloat(form.longitude) : null} 
+          onChange={(lat, lng) => { u('latitude', lat.toFixed(6)); u('longitude', lng.toFixed(6)); }} 
+        />
+      </FormSection>
+
+      <div className="flex gap-3 pt-4 border-t border-surface-border sticky bottom-0 bg-surface-0/95 p-4 -m-6 mt-6 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] rounded-b-3xl z-20">
         <button type="submit" disabled={saving} className="btn-primary flex-1">
           {saving ? 'Saving...' : 'Save Event'}
         </button>
-        <button type="button" onClick={onCancel} className="btn-secondary">Cancel</button>
+        <button type="button" onClick={onCancel} className="btn-secondary flex-1">Cancel</button>
       </div>
     </form>
   );
@@ -395,6 +346,8 @@ export default function ManageEvents() {
               is_free: modal.edit.is_free ?? 1, 
               general_price: modal.edit.general_price ?? 0, 
               vip_price: modal.edit.vip_price ?? 0,
+              latitude: modal.edit.latitude || '',
+              longitude: modal.edit.longitude || ''
             } : BLANK}
             onSave={handleSave}
             onCancel={() => setModal(null)}
