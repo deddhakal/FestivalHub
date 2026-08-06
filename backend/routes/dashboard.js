@@ -22,6 +22,22 @@ router.get('/stats', requireAdmin, async (req, res) => {
       FROM bookings GROUP BY ticket_type
     `);
 
+    // Revenue calculation
+    const [[revenue_data]] = await db.query(`
+      SELECT 
+        COALESCE(SUM(CASE WHEN b.ticket_type = 'General' THEN b.quantity * e.general_price ELSE 0 END), 0) AS general_revenue,
+        COALESCE(SUM(CASE WHEN b.ticket_type = 'VIP' THEN b.quantity * e.vip_price ELSE 0 END), 0) AS vip_revenue
+      FROM bookings b
+      JOIN events e ON b.event_id = e.id
+    `);
+
+    const total_revenue = Number(revenue_data.general_revenue) + Number(revenue_data.vip_revenue);
+
+    const revenue_sources = [
+      { name: 'General Tickets', value: Number(revenue_data.general_revenue), color: '#3b82f6' }, // blue-500
+      { name: 'VIP Tickets', value: Number(revenue_data.vip_revenue), color: '#eab308' } // yellow-500
+    ].filter(s => s.value > 0);
+
     // Recent bookings (last 5)
     const [recent_bookings] = await db.query(`
       SELECT
@@ -52,7 +68,11 @@ router.get('/stats', requireAdmin, async (req, res) => {
       total_announcements,
       ticket_summary,
       recent_bookings,
-      upcoming_events
+      upcoming_events,
+      revenue: {
+        total: total_revenue,
+        sources: revenue_sources
+      }
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

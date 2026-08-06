@@ -118,12 +118,17 @@ export default function EventDetail() {
 
         {/* Actions */}
         <div className="flex flex-wrap gap-3 mb-10 pb-10 border-b border-surface-border">
-          {sold ? (
+          {event.is_free ? (
+            <div className="flex items-center gap-3 px-5 py-3 bg-surface-1 rounded-xl text-ink-primary border border-surface-border">
+              <span className="text-xl">🎟️</span>
+              <p className="text-sm font-semibold">Free Entry • First come, first served (Limit 100)</p>
+            </div>
+          ) : sold ? (
             <button disabled className="btn-primary btn-lg opacity-40 cursor-not-allowed">
               Sold Out
             </button>
           ) : (
-            <Link to={`/booking?event=${event.id}`} id="book-tickets-btn" className="btn-primary btn-lg">
+            <Link to={`/booking?event=${event.id}`} id="book-tickets-btn" className="btn-primary btn-lg shadow-[0_8px_20px_-8px_rgba(251,113,133,0.6)] hover:shadow-[0_12px_25px_-8px_rgba(251,113,133,0.8)]">
               Book Tickets
             </Link>
           )}

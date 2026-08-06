@@ -258,7 +258,11 @@ function EventModal({ event, onClose }) {
               >
                 <span>{showMap ? '🖼️' : '📍'}</span> {showMap ? 'Hide Map' : 'View on Map'}
               </button>
-              {!sold && (
+              {event.is_free ? (
+                <div className="flex items-center gap-2 px-4 py-3 bg-surface-1/50 rounded-xl text-ink-primary border border-surface-border/50 text-sm font-bold w-full sm:w-auto text-center justify-center shadow-sm">
+                  🎟️ Free Entry • First come, first served (Limit 100)
+                </div>
+              ) : !sold && (
                 <a href={`/booking?event=${event.id}`} className="btn-primary btn-lg shadow-[0_8px_20px_-8px_rgba(251,113,133,0.6)] hover:shadow-[0_12px_25px_-8px_rgba(251,113,133,0.8)] shrink-0 w-full sm:w-auto text-center">
                   Book Ticket Now
                 </a>
