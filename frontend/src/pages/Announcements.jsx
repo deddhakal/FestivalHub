@@ -123,11 +123,11 @@ export default function Announcements() {
     : announcements.filter(a => a.type === filter);
 
   return (
-    <div className="min-h-screen pt-12 pb-12 bg-surface-0 relative overflow-hidden">
+    <div className="min-h-screen pt-fluid-xl pb-fluid-xl bg-surface-0 relative overflow-hidden">
       {/* Background Decor */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-gradient-to-b from-brand-500/10 to-transparent blur-3xl opacity-50 pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-gradient-to-b from-brand-500/10 to-transparent blur-3xl opacity-50 pointer-events-none" aria-hidden="true" />
       
-      <div className="max-w-4xl mx-auto px-4 md:px-8 relative z-10">
+      <div className="container max-w-4xl relative z-10">
 
         {/* Page header */}
         <div className="py-6 md:py-10 text-center mb-6 relative">

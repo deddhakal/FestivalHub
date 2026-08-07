@@ -38,6 +38,18 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display leading-tight tracking-tight text-ink-primary font-bold;
+    text-wrap: balance;
+  }
+  
+  h1 { @apply text-fluid-4xl; }
+  h2 { @apply text-fluid-3xl; }
+  h3 { @apply text-fluid-2xl; }
+  h4 { @apply text-fluid-xl; }
+  h5 { @apply text-fluid-lg; }
+  h6 { @apply text-fluid-base; }
+  
+  p, span, li, a {
+    @apply text-fluid-base;
   }
 }
 
@@ -52,9 +64,9 @@
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
-  .btn-sm  { @apply text-sm px-5 py-2.5; }
-  .btn-md  { @apply text-base px-6 py-3; }
-  .btn-lg  { @apply text-lg px-8 py-4; }
+  .btn-sm  { @apply text-sm px-fluid-sm py-2; }
+  .btn-md  { @apply text-fluid-base px-fluid-md py-3; }
+  .btn-lg  { @apply text-fluid-lg px-fluid-md py-4; }
 
   .btn-primary {
     @apply btn bg-brand-500 text-white shadow-soft hover:shadow-lift hover:-translate-y-1;
@@ -99,10 +111,10 @@
   }
 
   /* Section layout */
-  .section     { @apply py-20 md:py-32 px-4 md:px-8; }
-  .section-sm  { @apply py-12 md:py-20 px-4 md:px-8; }
-  .container   { @apply max-w-7xl mx-auto; }
-  .container-sm { @apply max-w-4xl mx-auto; }
+  .section     { @apply py-fluid-xl px-fluid-sm md:px-fluid-md; }
+  .section-sm  { @apply py-fluid-lg px-fluid-sm md:px-fluid-md; }
+  .container   { @apply w-full max-w-7xl mx-auto px-fluid-sm md:px-fluid-md; }
+  .container-sm { @apply w-full max-w-4xl mx-auto px-fluid-sm md:px-fluid-md; }
 
   .eyebrow {
     @apply text-sm font-bold tracking-[0.1em] text-ink-tertiary mb-3 block;
@@ -139,9 +151,12 @@
   .nav-link-active { @apply nav-link text-ink-primary bg-surface-2; }
 
   /* Table */
-  .data-table { @apply w-full text-sm text-left bg-white rounded-3xl overflow-hidden shadow-soft; }
+  .table-responsive-container {
+    @apply w-full overflow-x-auto rounded-3xl shadow-soft;
+  }
+  .data-table { @apply w-full min-w-[600px] text-sm text-left bg-white; }
   .data-table thead { @apply border-b border-surface-border bg-surface-0; }
-  .data-table th { @apply px-6 py-4 text-xs font-bold text-ink-secondary; }
+  .data-table th { @apply px-6 py-4 text-xs font-bold text-ink-secondary whitespace-nowrap; }
   .data-table td { @apply px-6 py-4 text-ink-primary border-t border-surface-border; }
   .data-table tbody tr { @apply hover:bg-surface-2 transition-colors duration-150; }
 

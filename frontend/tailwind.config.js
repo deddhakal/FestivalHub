@@ -6,10 +6,19 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '375px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1440px',
+        '3xl': '1920px', // Ultrawide support
+      },
       colors: {
         // Soft & Elegant Accents
-        coral:    { 500: '#FF6B6B', 100: '#FFE5E5' },
-        gold:     { 500: '#FFB703', 100: '#FFF4D6' },
+        coral:    { 500: '#FF6B6B', 400: '#FF8585', 100: '#FFE5E5' },
+        gold:     { 500: '#FFB703', 400: '#FFC533', 100: '#FFF4D6' },
         sky:      { 500: '#8ECAE6', 100: '#E6F4FA' },
         mint:     { 500: '#A8DADC', 100: '#EAF5F5' },
         lavender: { 500: '#CDB4DB', 100: '#F3EBF6' },
@@ -53,6 +62,20 @@ export default {
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '1rem' }],
+        'fluid-sm': 'clamp(0.875rem, 0.8vw + 0.6rem, 1rem)',
+        'fluid-base': 'clamp(1rem, 1vw + 0.75rem, 1.125rem)',
+        'fluid-lg': 'clamp(1.125rem, 1.5vw + 0.75rem, 1.5rem)',
+        'fluid-xl': 'clamp(1.25rem, 2vw + 1rem, 1.75rem)',
+        'fluid-2xl': 'clamp(1.5rem, 2.5vw + 1rem, 2rem)',
+        'fluid-3xl': 'clamp(1.875rem, 3.5vw + 1rem, 2.5rem)',
+        'fluid-4xl': 'clamp(2.25rem, 4.5vw + 1rem, 3.5rem)',
+        'fluid-5xl': 'clamp(3rem, 6vw + 1rem, 4.5rem)',
+      },
+      spacing: {
+        'fluid-sm': 'clamp(0.5rem, 1vw + 0.25rem, 1rem)',
+        'fluid-md': 'clamp(1rem, 2vw + 0.5rem, 2rem)',
+        'fluid-lg': 'clamp(2rem, 4vw + 1rem, 4rem)',
+        'fluid-xl': 'clamp(4rem, 8vw + 2rem, 8rem)',
       },
       boxShadow: {
         'soft': '0 8px 30px rgba(0,0,0,0.04)',
@@ -84,5 +107,7 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 }

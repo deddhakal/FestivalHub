@@ -58,8 +58,8 @@ export default function EventDetail() {
   const catColor = CATEGORY_COLOR[event.category] || 'text-ink-secondary';
 
   return (
-    <div className="min-h-screen pt-20 pb-16">
-      <div className="max-w-4xl mx-auto px-4 md:px-6">
+    <div className="min-h-screen pt-fluid-xl pb-fluid-lg">
+      <div className="container max-w-4xl">
 
         {/* Back */}
         <div className="py-6 border-b border-surface-border mb-8">

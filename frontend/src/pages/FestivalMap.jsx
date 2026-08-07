@@ -209,7 +209,7 @@ export default function FestivalMap() {
   };
 
   return (
-    <div className="relative w-full h-screen pt-16 bg-surface-0 overflow-hidden flex flex-col">
+    <div className="relative w-full h-screen pt-fluid-xl bg-surface-0 overflow-hidden flex flex-col">
       {/* Decorative Header */}
       <div className="absolute top-20 left-4 md:left-8 z-[9999] pointer-events-none">
         <h1 className="font-display text-4xl md:text-5xl font-bold text-ink-primary drop-shadow-md bg-white/70 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/50">

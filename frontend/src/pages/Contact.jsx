@@ -132,14 +132,14 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 relative overflow-hidden bg-surface-0 flex flex-col justify-center">
+    <div className="min-h-screen pt-fluid-xl pb-fluid-lg relative overflow-hidden bg-surface-0 flex flex-col justify-center">
       {/* Animated Background Orbs */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-5%] right-[-5%] w-[600px] h-[600px] bg-coral-500/10 blur-[100px] rounded-full" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[800px] h-[800px] bg-brand-500/10 blur-[120px] rounded-full" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 w-full">
+      <div className="container relative z-10 w-full">
         {/* 50/50 Split Grid, Vertically Centered */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[calc(100vh-16rem)]">
           

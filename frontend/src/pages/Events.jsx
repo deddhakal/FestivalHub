@@ -374,18 +374,18 @@ export default function Events() {
   ];
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-surface-50 relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-1 via-surface-0 to-surface-0">
+    <div className="min-h-screen pt-fluid-xl pb-fluid-lg bg-surface-50 relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-1 via-surface-0 to-surface-0">
       <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-brand-500/5 to-transparent pointer-events-none"></div>
       
-      <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+      <div className="container relative z-10">
         
         {/* Compact Header & Controls Row */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 animate-slide-up">
           <div className="max-w-2xl">
-            <h1 className="font-display text-4xl md:text-5xl font-black text-ink-primary tracking-tight mb-3">
+            <h1 className="font-display text-fluid-4xl md:text-fluid-5xl font-black text-ink-primary tracking-tight mb-3">
               Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-coral-500">Events</span>
             </h1>
-            <p className="text-ink-secondary text-base md:text-lg font-medium leading-relaxed">
+            <p className="text-ink-secondary text-fluid-base md:text-fluid-lg font-medium leading-relaxed">
               Discover breathtaking performances, workshops, and gatherings across the festival.
             </p>
           </div>

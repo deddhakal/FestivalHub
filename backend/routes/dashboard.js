@@ -34,8 +34,8 @@ router.get('/stats', requireAdmin, async (req, res) => {
     const total_revenue = Number(revenue_data.general_revenue) + Number(revenue_data.vip_revenue);
 
     const revenue_sources = [
-      { name: 'General Tickets', value: Number(revenue_data.general_revenue), color: '#3b82f6' }, // blue-500
-      { name: 'VIP Tickets', value: Number(revenue_data.vip_revenue), color: '#eab308' } // yellow-500
+      { name: 'General Tickets', value: Number(revenue_data.general_revenue), color: '#FF6B6B' }, // brand-500 (coral)
+      { name: 'VIP Tickets', value: Number(revenue_data.vip_revenue), color: '#FFB703' } // gold-500
     ].filter(s => s.value > 0);
 
     // Recent bookings (last 5)

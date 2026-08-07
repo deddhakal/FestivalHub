@@ -49,7 +49,7 @@ export default function ManageTicket() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-0 flex flex-col lg:flex-row relative">
+    <div className="h-screen overflow-hidden bg-surface-0 flex flex-col lg:flex-row relative">
       
       {/* ── Prominent Global Navigation ── */}
       <div className="absolute top-6 left-6 lg:top-10 lg:left-12 z-50 no-print">
@@ -60,11 +60,11 @@ export default function ManageTicket() {
       </div>
 
       {/* ── Visual Background / Left Split ── */}
-      <div className={`relative w-full lg:w-1/2 min-h-[40vh] lg:min-h-screen overflow-hidden no-print transition-all duration-[800ms] ease-in-out ${ticket ? 'lg:w-[35%] opacity-80' : 'lg:w-1/2'}`}>
+      <div className={`relative w-full lg:w-1/2 h-[40vh] lg:h-screen overflow-hidden no-print transition-all duration-[800ms] ease-in-out ${ticket ? 'lg:w-[35%] opacity-80' : 'lg:w-1/2'}`}>
         <div className="absolute inset-0 bg-[#0a0a0a] z-0">
           {/* Cinematic Slow Pan Image */}
           <img 
-            src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
+            src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=2000&q=80" 
             alt="Festival crowd cheering"
             className="w-full h-full object-cover opacity-90" 
             style={{ animation: 'panZoom 35s ease-in-out infinite alternate' }} 
@@ -90,7 +90,7 @@ export default function ManageTicket() {
       </div>
 
       {/* ── Right Content / Form Area ── */}
-      <div className={`w-full lg:w-1/2 flex-1 flex flex-col justify-center items-center p-6 sm:p-12 lg:p-20 transition-all duration-[800ms] ease-in-out bg-surface-0 ${ticket ? 'lg:w-[65%]' : 'lg:w-1/2'}`}>
+      <div className={`w-full lg:w-1/2 flex-1 flex flex-col justify-center items-center p-fluid-md lg:p-fluid-xl transition-all duration-[800ms] ease-in-out bg-surface-0 h-full ${ticket ? 'lg:w-[65%]' : 'lg:w-1/2'}`}>
         <div className={`w-full mx-auto transition-all duration-700 ${ticket ? 'max-w-2xl' : 'max-w-lg'}`}>
           
           {/* Search Form */}
@@ -169,7 +169,7 @@ export default function ManageTicket() {
             <div className="animate-slide-up w-full">
               
               {/* Interactive Toolbar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 no-print bg-white p-5 rounded-3xl border border-surface-border shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 lg:mb-8 gap-4 no-print bg-white p-4 lg:p-5 rounded-3xl border border-surface-border shadow-sm">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center text-brand-500">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -181,10 +181,6 @@ export default function ManageTicket() {
                 </div>
                 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <button onClick={() => window.print()} className="btn-secondary flex-1 sm:flex-none btn-sm rounded-full flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                    Print
-                  </button>
                   <button onClick={handleCancel} disabled={loading} className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold px-4 py-2 rounded-full text-sm transition-colors disabled:opacity-50 flex-1 sm:flex-none">
                     Cancel
                   </button>
@@ -197,7 +193,7 @@ export default function ManageTicket() {
               </div>
 
               {/* Return Button */}
-              <div className="mt-10 text-center no-print">
+              <div className="mt-6 lg:mt-10 text-center no-print">
                 <button onClick={() => { setTicket(null); setError(''); setSuccess(''); }} className="inline-flex items-center gap-2 text-ink-secondary hover:text-brand-500 font-bold text-sm transition-colors group">
                   <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                   Lookup another ticket

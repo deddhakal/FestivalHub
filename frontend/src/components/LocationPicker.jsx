@@ -33,9 +33,9 @@ export default function LocationPicker({ lat, lng, onChange }) {
   }
 
   return (
-    <div className="flex flex-col gap-3 mt-2">
-      <div className="h-64 w-full rounded-2xl overflow-hidden border-2 border-ink-tertiary/20 z-0 relative shadow-inner">
-        <MapContainer center={position} zoom={16} className="h-full w-full bg-surface-1">
+    <div className="flex flex-col gap-3 mt-2 w-full">
+      <div className="min-h-[250px] h-[40vh] max-h-96 w-full rounded-3xl overflow-hidden border-2 border-ink-tertiary/20 z-0 relative shadow-inner">
+        <MapContainer center={position} zoom={16} className="h-full w-full bg-surface-1" aria-label="Interactive map for location selection">
           <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
           <MapEvents />
           <MapController centerPos={lat && lng ? [lat, lng] : null} />

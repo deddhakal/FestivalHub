@@ -62,24 +62,26 @@ export default function TimeInput({ value, onChange, placeholderHr = '12', place
   };
 
   return (
-    <div className="flex items-center gap-1 bg-white border-2 border-ink-tertiary/30 rounded-xl px-3 py-2 shadow-sm focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-500/10 transition-all w-fit">
+    <div className="flex items-center gap-1 bg-white border-2 border-ink-tertiary/30 rounded-xl px-3 py-2 shadow-sm focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-500/10 transition-all w-fit min-h-[44px]">
       <input 
         type="text" 
         maxLength={2} 
         placeholder={placeholderHr}
         value={hour}
+        aria-label="Hour"
         onChange={e => {
           setHour(e.target.value.replace(/\D/g, ''));
         }}
         onBlur={handleHourBlur}
         className="w-8 text-center text-lg font-bold outline-none bg-transparent placeholder-ink-tertiary/50" 
       />
-      <span className="text-xl font-bold text-ink-tertiary/50 pb-1">:</span>
+      <span className="text-xl font-bold text-ink-tertiary/50 pb-1" aria-hidden="true">:</span>
       <input 
         type="text" 
         maxLength={2} 
         placeholder={placeholderMin}
         value={minute}
+        aria-label="Minute"
         onChange={e => {
           setMinute(e.target.value.replace(/\D/g, ''));
         }}
@@ -89,17 +91,18 @@ export default function TimeInput({ value, onChange, placeholderHr = '12', place
       <div className="relative ml-2">
         <select 
           value={ampm}
+          aria-label="AM or PM"
           onChange={e => {
             setAmPm(e.target.value);
             updateParent(hour, minute, e.target.value);
           }}
-          className="appearance-none bg-surface-2 text-ink-primary font-black text-sm pl-3 pr-6 py-1.5 rounded-lg outline-none cursor-pointer hover:bg-surface-border transition-colors border-none"
+          className="appearance-none bg-surface-2 text-ink-primary font-black text-sm pl-3 pr-8 py-2 rounded-lg outline-none cursor-pointer hover:bg-surface-border transition-colors border-none min-h-[36px]"
         >
           <option value="AM">AM</option>
           <option value="PM">PM</option>
         </select>
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-ink-tertiary">
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path>
           </svg>
         </div>

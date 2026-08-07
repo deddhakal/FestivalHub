@@ -250,13 +250,13 @@ export default function Home() {
     <div className="min-h-screen bg-surface-0">
 
       {/* ─── Hero ─────────────────────────────────────────────── */}
-      <section className="relative min-h-[90vh] flex items-center pt-24 pb-20 px-4 md:px-6 overflow-hidden bg-surface-0">
+      <section className="relative min-h-[90vh] flex items-center pt-fluid-xl pb-fluid-lg overflow-hidden bg-surface-0">
         {/* Soft Decorative Elements */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-coral-100/40 via-brand-50/30 to-transparent pointer-events-none rounded-bl-[100px]" />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-brand-200/20 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-coral-100/40 via-brand-50/30 to-transparent pointer-events-none rounded-bl-[100px]" aria-hidden="true" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-brand-200/20 blur-[100px] rounded-full pointer-events-none" aria-hidden="true" />
 
-        <div className="max-w-7xl mx-auto relative z-10 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="container relative z-10 w-full">
+          <div className="grid lg:grid-cols-2 gap-fluid-md lg:gap-8 items-center">
             
             {/* Left Content */}
             <motion.div 
@@ -270,7 +270,7 @@ export default function Home() {
                 <span className="text-xs font-bold tracking-wide uppercase">The ultimate event platform</span>
               </div>
 
-              <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-extrabold text-ink-primary leading-[1.1] tracking-tight mb-6">
+              <h1 className="font-display text-fluid-5xl font-extrabold text-ink-primary leading-[1.1] tracking-tight mb-6">
                 Create, Manage & 
                 <br />
                 <span className="text-brand-500">Host Extraordinary</span>
@@ -278,7 +278,7 @@ export default function Home() {
                 Events
               </h1>
 
-              <p className="text-lg md:text-xl text-ink-secondary leading-relaxed mb-10 font-medium max-w-xl mx-auto lg:mx-0">
+              <p className="text-fluid-lg text-ink-secondary leading-relaxed mb-10 font-medium max-w-xl mx-auto lg:mx-0">
                 The all-in-one platform for organizers to launch their events, sell tickets, and create unforgettable experiences for attendees.
               </p>
 
@@ -322,6 +322,7 @@ export default function Home() {
                    src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=1200" 
                    alt="Event management crowd" 
                    className="w-full h-full object-cover rounded-2xl"
+                   fetchPriority="high"
                  />
                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/5" />
                </div>
@@ -361,19 +362,19 @@ export default function Home() {
           transformOrigin: "bottom center",
           willChange: "transform"
         }}
-        className="relative z-30 -mt-12 md:-mt-24 bg-[#141E34] rounded-t-[3rem] md:rounded-t-[4rem] shadow-[0_-20px_60px_rgba(0,0,0,0.3)] border-t border-white/10 overflow-hidden pt-24 pb-32 px-6 lg:px-12"
+        className="relative z-30 -mt-12 md:-mt-24 bg-[#141E34] rounded-t-[3rem] md:rounded-t-[4rem] shadow-[0_-20px_60px_rgba(0,0,0,0.3)] border-t border-white/10 overflow-hidden pt-fluid-xl pb-fluid-xl px-fluid-md lg:px-fluid-lg"
       >
         {/* Noise Texture Overlay */}
-        <div className="absolute inset-0 bg-noise opacity-[0.12] pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-noise opacity-[0.12] pointer-events-none z-0" aria-hidden="true" />
 
         {/* Massive Background Text */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none z-0">
-          <h2 className="text-[18vw] font-black text-white whitespace-nowrap tracking-tighter uppercase opacity-[0.03]">
+          <h2 className="text-[18vw] font-black text-white whitespace-nowrap tracking-tighter uppercase opacity-[0.03]" aria-hidden="true">
             EVENTS
           </h2>
         </div>
 
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-center justify-between gap-16">
+        <div className="container relative z-10 flex flex-col lg:flex-row items-center justify-between gap-16">
           
           {/* Left Side: Typography */}
           <div className="flex-1 text-center lg:text-left">

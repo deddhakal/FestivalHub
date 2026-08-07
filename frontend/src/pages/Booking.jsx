@@ -17,7 +17,7 @@ function ConfirmationView({ booking, event, onReset }) {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 flex flex-col items-center justify-center px-4 md:px-6 bg-surface-0">
+    <div className="min-h-screen pt-fluid-xl pb-fluid-lg flex flex-col items-center justify-center px-fluid-sm md:px-fluid-md bg-surface-0">
       
       <div className="max-w-3xl w-full animate-scale-in flex flex-col items-center">
         {/* Success mark */}
@@ -122,7 +122,7 @@ function PaymentSuccessAnimation() {
       `}</style>
       
       {/* Background glowing orb */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] md:w-[600px] md:h-[600px] bg-emerald-400/10 rounded-full blur-[100px] animate-pulse pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] md:w-[600px] md:h-[600px] bg-emerald-400/10 rounded-full blur-[100px] animate-pulse pointer-events-none" aria-hidden="true"></div>
 
       {/* Confetti particles */}
       {[...Array(30)].map((_, i) => (
@@ -318,12 +318,12 @@ export default function Booking() {
   const total = subtotal + fee;
 
   return (
-    <div className="min-h-[90vh] pt-16 pb-8 bg-surface-0 relative overflow-hidden">
+    <div className="min-h-[90vh] pt-fluid-xl pb-fluid-lg bg-surface-0 relative overflow-hidden">
       {/* Decorative ambient background blobs */}
-      <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-coral-400/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-sky-400/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-coral-400/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true"></div>
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-sky-400/10 rounded-full blur-[120px] pointer-events-none" aria-hidden="true"></div>
 
-      <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
+      <div className="container relative z-10">
 
         {loading ? (
           <div className="py-20 flex justify-center"><LoadingSpinner /></div>
@@ -377,8 +377,9 @@ export default function Booking() {
                     
                     <div className="space-y-5">
                       <div>
-                        <label className="text-sm font-bold text-ink-primary mb-1 block">Which event are you attending?</label>
+                        <label htmlFor="event-select" className="text-sm font-bold text-ink-primary mb-1 block">Which event are you attending?</label>
                         <select
+                          id="event-select"
                           className={errors.event_id ? 'field-input-error' : 'field-input bg-surface-1'}
                           value={form.event_id}
                           onChange={e => update('event_id', e.target.value)}
@@ -462,8 +463,9 @@ export default function Booking() {
                     
                     <div className="space-y-5 max-w-md">
                       <div>
-                        <label className="text-sm font-bold text-ink-primary mb-1 block">Full Legal Name</label>
+                        <label htmlFor="visitor-name" className="text-sm font-bold text-ink-primary mb-1 block">Full Legal Name</label>
                         <input
+                          id="visitor-name"
                           type="text"
                           className={errors.visitor_name ? 'field-input-error' : 'field-input bg-surface-1'}
                           placeholder="Enter your full name"
@@ -474,8 +476,9 @@ export default function Booking() {
                       </div>
 
                       <div>
-                        <label className="text-sm font-bold text-ink-primary mb-1 block">Email Address</label>
+                        <label htmlFor="visitor-email" className="text-sm font-bold text-ink-primary mb-1 block">Email Address</label>
                         <input
+                          id="visitor-email"
                           type="email"
                           className={errors.visitor_email ? 'field-input-error' : 'field-input bg-surface-1'}
                           placeholder="Enter your email address"
@@ -519,8 +522,9 @@ export default function Booking() {
                         </div>
 
                         <div className="relative z-10 pt-4">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Card Number</label>
+                          <label htmlFor="card-number" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Card Number</label>
                           <input
+                            id="card-number"
                             type="text"
                             maxLength="19"
                             placeholder="0000 0000 0000 0000"
@@ -536,8 +540,9 @@ export default function Booking() {
                         </div>
 
                         <div className="relative z-10">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Name on Card</label>
+                          <label htmlFor="card-name" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Name on Card</label>
                           <input
+                            id="card-name"
                             type="text"
                             placeholder="Enter name on card"
                             className={`w-full bg-transparent border-b-2 ${errors.cardName ? 'border-coral-500' : 'border-gray-700 focus:border-white'} px-1 py-2 text-white font-display uppercase tracking-widest focus:outline-none transition-colors placeholder-gray-600`}

@@ -112,8 +112,8 @@ export default function FoodAttractions() {
   }, {});
 
   return (
-    <div className="min-h-screen pt-20 bg-surface-0 flex flex-col">
-      <div className="max-w-[1600px] mx-auto w-full px-4 md:px-6 flex-1 flex flex-col lg:flex-row gap-6 lg:gap-10 pb-6 lg:h-[calc(100vh-80px)]">
+    <div className="min-h-screen pt-fluid-xl bg-surface-0 flex flex-col">
+      <div className="container max-w-[1600px] w-full flex-1 flex flex-col lg:flex-row gap-fluid-md lg:gap-fluid-lg pb-fluid-md lg:h-[calc(100vh-80px)]">
 
         {/* Left Column: List & Filters */}
         <div className="w-full lg:w-1/2 xl:w-5/12 flex flex-col h-full overflow-hidden pt-6 lg:pb-6">

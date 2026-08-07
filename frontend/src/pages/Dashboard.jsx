@@ -235,14 +235,14 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-surface-0 pb-20 pt-24 font-sans selection:bg-brand-500 selection:text-white">
+    <div className="min-h-screen bg-surface-0 pb-fluid-lg pt-fluid-xl font-sans selection:bg-brand-500 selection:text-white">
       {/* ── Background Elements ── */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-400/5 blur-[120px]" />
         <div className="absolute top-[20%] right-[-10%] w-[30%] h-[40%] rounded-full bg-coral-400/5 blur-[120px]" />
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="container relative z-10 max-w-[1600px]">
         
         {/* ── Header ── */}
         <motion.div 

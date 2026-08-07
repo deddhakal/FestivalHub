@@ -85,21 +85,21 @@ export default function DigitalTicket({ ticket }) {
         <div className="bg-white rounded-2xl overflow-hidden border border-surface-border shadow-lift relative flex flex-col md:flex-row print:flex-row w-full max-w-3xl mx-auto break-inside-avoid print:scale-95 print:origin-top">
 
           {/* Left side / Top side : Event Info */}
-          <div className="p-8 md:p-10 flex-1 relative bg-gradient-to-br from-[#FF6B6B] to-[#D94A4A] text-white shadow-inner">
+          <div className="p-fluid-md md:p-8 lg:p-10 flex-1 relative bg-gradient-to-br from-[#FF6B6B] to-[#D94A4A] text-white shadow-inner">
             {/* Decorative circles */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/20 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3" />
 
             <div className="relative z-10 h-full flex flex-col">
-              <div className="mb-10">
-                <p className="font-display font-black text-lg opacity-90 tracking-widest uppercase mb-1">FestivalHub</p>
-                <h3 className="font-display font-black text-4xl leading-tight">{ticket.event_title || ticket.event}</h3>
+              <div className="mb-8 md:mb-10">
+                <p className="font-display font-black text-fluid-base opacity-90 tracking-widest uppercase mb-1">FestivalHub</p>
+                <h3 className="font-display font-black text-fluid-3xl leading-tight">{ticket.event_title || ticket.event}</h3>
               </div>
 
-              <div className="mt-auto grid grid-cols-2 gap-8">
+              <div className="mt-auto grid grid-cols-2 gap-4 md:gap-8">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Date</p>
-                  <p className="font-bold text-lg">
+                  <p className="font-bold text-fluid-base">
                     {ticket.event_date
                       ? new Date(ticket.event_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
                       : 'TBA'
@@ -108,15 +108,15 @@ export default function DigitalTicket({ ticket }) {
                 </div>
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Time</p>
-                  <p className="font-bold text-lg">{ticket.start_time?.slice(0, 5) || 'TBA'}</p>
+                  <p className="font-bold text-fluid-base">{ticket.start_time?.slice(0, 5) || 'TBA'}</p>
                 </div>
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Location</p>
-                  <p className="font-bold text-lg">{ticket.stage || 'TBA'}</p>
+                  <p className="font-bold text-fluid-base">{ticket.stage || 'TBA'}</p>
                 </div>
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Ticket Type</p>
-                  <p className="font-bold text-lg flex items-center gap-2">
+                  <p className="font-bold text-fluid-base flex items-center gap-2">
                     {ticket.ticket_type === 'VIP' ? '' : ''} {ticket.ticket_type}
                   </p>
                 </div>
@@ -137,22 +137,22 @@ export default function DigitalTicket({ ticket }) {
           </div>
 
           {/* Right side / Bottom side : Attendee & Barcode */}
-          <div className="p-8 md:p-10 bg-white md:w-80 flex flex-col items-center justify-center text-center">
+          <div className="p-fluid-md md:p-8 lg:p-10 bg-white md:w-80 flex flex-col items-center justify-center text-center">
             <p className="text-xs font-bold text-ink-tertiary uppercase tracking-wider mb-2">Admit</p>
-            <p className="font-display font-black text-6xl text-ink-primary mb-2">{ticket.quantity}</p>
-            <p className="font-bold text-ink-secondary mb-8">{ticket.quantity === 1 ? 'Person' : 'People'}</p>
+            <p className="font-display font-black text-fluid-5xl text-ink-primary leading-none mb-2">{ticket.quantity}</p>
+            <p className="font-bold text-ink-secondary mb-6 md:mb-8">{ticket.quantity === 1 ? 'Person' : 'People'}</p>
 
             <div className="w-full bg-surface-0 rounded-xl p-4 mb-6 flex flex-col items-center justify-center border border-surface-border">
               {/* Authentic-looking Barcode visual */}
-              <div className="flex h-16 w-full max-w-[200px] mb-3 items-end justify-between px-2 gap-[2px]">
+              <div className="flex h-12 md:h-16 w-full max-w-[200px] mb-3 items-end justify-between px-2 gap-[2px]">
                 {[3, 1, 2, 4, 1, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3, 4, 1, 2].map((w, i) => (
                   <div key={i} className="bg-ink-primary h-full" style={{ width: `${w * 2}px` }} />
                 ))}
               </div>
-              <p className="font-mono font-bold text-ink-primary tracking-widest text-lg">{ticket.booking_ref}</p>
+              <p className="font-mono font-bold text-ink-primary tracking-widest text-fluid-base">{ticket.booking_ref}</p>
             </div>
 
-            <p className="text-sm font-bold text-ink-primary uppercase tracking-wide">{ticket.visitor_name}</p>
+            <p className="text-fluid-sm font-bold text-ink-primary uppercase tracking-wide break-words w-full">{ticket.visitor_name}</p>
             <p className="text-xs font-medium text-ink-tertiary truncate max-w-full">{ticket.visitor_email}</p>
           </div>
         </div>
