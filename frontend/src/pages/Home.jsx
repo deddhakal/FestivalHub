@@ -388,7 +388,7 @@ export default function Home() {
               
               <div className="relative group w-fit" style={{ perspective: "1000px" }}>
                 <h2 
-                  className="loop-glitch font-display text-[4rem] sm:text-[5.5rem] lg:text-[7rem] xl:text-[8rem] font-black text-white uppercase cursor-default select-none block"
+                  className="loop-glitch font-display text-[4rem] sm:text-[5.5rem] lg:text-[7rem] xl:text-[8rem] font-black text-white uppercase cursor-default select-none block whitespace-nowrap"
                   data-text="GOT AN EVENT"
                   style={{ lineHeight: "1", letterSpacing: "-0.03em", textShadow: "0 10px 40px rgba(0,0,0,0.5)" }}
                 >
@@ -415,11 +415,11 @@ export default function Home() {
                   >
                     IN
                   </span>
-                  <div style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, transparent, rgba(234,179,8,0.5))" }} />
+                  <div style={{ flex: 1, height: "2px", background: "linear-gradient(90deg, transparent, rgba(234,179,8,0.5))" }} />
                 </div>
                 
                 <h2 
-                  className="font-display text-[4.5rem] sm:text-[6rem] lg:text-[7.5rem] xl:text-[9rem] font-black uppercase cursor-default select-none block"
+                  className="font-display text-[4.5rem] sm:text-[6rem] lg:text-[7.5rem] xl:text-[9rem] font-black uppercase cursor-default select-none block text-center"
                   style={{
                     lineHeight: "1",
                     letterSpacing: "-0.03em",
