@@ -99,40 +99,32 @@ INSERT INTO admins (username, password_hash, name) VALUES
 ('admin', '$2a$10$RdozPBxyt4kkaOYzXnMX8eKeLxrLGSSQ3xNe7KKz89tWPL7qTiw.S', 'Campus Admin');
 
 -- ─── Events ────────────────────────────────────────────────
-INSERT INTO events (title, description, stage, event_date, start_time, end_time, category, latitude, longitude, tickets_available) VALUES
-('Spring Music Festival', 'The biggest outdoor music event of the semester featuring student bands and a headline DJ.', 'Main Quad', '2026-09-10', '16:00:00', '22:00:00', 'Music', -37.7963, 144.9610, 800),
-('Global Hackathon 2026', 'A 24-hour coding marathon to solve real-world problems. Free food and amazing prizes!', 'Innovation Center', '2026-09-15', '09:00:00', '09:00:00', 'Hackathon', -37.7990, 144.9590, 150),
-('Student Art Exhibition', 'Explore breathtaking artwork, photography, and sculptures created by our fine arts students.', 'Creative Arts Building', '2026-09-18', '11:00:00', '18:00:00', 'Art', -37.7985, 144.9630, 300),
-('International Food Fiesta', 'Taste the world! Stalls featuring authentic cuisines prepared by international student clubs.', 'Student Union Plaza', '2026-09-22', '12:00:00', '16:00:00', 'Food', -37.7975, 144.9615, 500),
-('Campus Marathon & Sports Day', 'Join the 5K run around the campus followed by inter-college sports tournaments.', 'Athletics Track', '2026-09-25', '08:00:00', '15:00:00', 'Sports', -37.8000, 144.9640, 250),
-('Diwali Cultural Night', 'Celebrate the festival of lights with traditional dances, music, and a grand feast.', 'Main Auditorium', '2026-10-15', '18:00:00', '23:00:00', 'Cultural', -37.7963, 144.9610, 600),
-('AI & Future Tech Workshop', 'Hands-on workshop exploring the latest in generative AI and machine learning trends.', 'Tech Hub Room 201', '2026-10-20', '14:00:00', '17:00:00', 'Workshop', -37.7990, 144.9590, 80),
-('Indie Film Screening', 'A cozy movie night under the stars screening award-winning indie films.', 'Lawn Amphitheater', '2026-10-28', '19:30:00', '22:30:00', 'Film Club', -37.7995, 144.9605, 200);
+INSERT INTO events (title, description, stage, event_date, start_time, end_time, category, latitude, longitude, image_url, is_free, general_price, vip_price, tickets_available) VALUES
+('Neon Lights Music Festival', 'Experience a night of electrifying performances and spectacular light shows from top international DJs and artists.', 'Main Stage', '2026-11-05', '18:00:00', '23:30:00', 'Music', -37.7963, 144.9610, 'https://images.unsplash.com/photo-1540039155732-61ee14b12756?auto=format&fit=crop&w=800&q=80', 0, 50.00, 150.00, 1000),
+('FutureTech Summit 2026', 'A gathering of the brightest minds in AI, Web3, and Robotics. Features keynote speeches and interactive panels.', 'Tech Arena', '2026-11-12', '09:00:00', '17:00:00', 'Tech', -37.7990, 144.9590, 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80', 0, 100.00, 300.00, 500),
+('Street Food Carnival', 'Taste diverse cuisines from around the globe at our ultimate food carnival featuring local and international vendors.', 'Central Plaza', '2026-11-20', '11:00:00', '21:00:00', 'Food', -37.7975, 144.9615, 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80', 1, 0.00, 0.00, 2000),
+('Modern Art Exhibition', 'Discover contemporary artworks, digital art, and sculptures from rising independent and student artists.', 'Art Gallery', '2026-11-25', '10:00:00', '18:00:00', 'Art', -37.7985, 144.9630, 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=800&q=80', 1, 0.00, 0.00, 300);
 
 -- ─── Vendors ────────────────────────────────────────────────
-INSERT INTO vendors (name, stall_name, description, category, location, latitude, longitude, is_active) VALUES
-('The Matcha Bar', 'Stall A1', 'Premium iced matcha lattes, boba, and Asian-inspired pastries.', 'Drinks', 'Union Square Kiosk', -37.7975, 144.9615, 1),
-('Gourmet Grilled Cheese', 'Stall B2', 'Artisan grilled cheese sandwiches with locally sourced sourdough.', 'Food', 'Main Quad Food Trucks', -37.7977, 144.9610, 1),
-('Campus Thrift & Vintage', 'Stall C3', 'Student-run thrift shop featuring vintage clothing and accessories.', 'Merchandise', 'Student Hub - Level 1', -37.7980, 144.9600, 1),
-('VR Gaming Experience', 'Stall D4', 'Step into another world with our immersive VR setups. Free for students!', 'Attraction', 'Innovation Center', -37.7990, 144.9590, 1),
-('Acai & Smoothie Bowl', 'Stall E5', 'Fresh, healthy, and organic acai bowls to keep your energy up.', 'Food', 'Athletics Track Entrance', -37.7965, 144.9620, 1),
-('Craft Coffee Cart', 'Stall F6', 'Locally roasted artisan coffee, cold brew, and fresh croissants.', 'Drinks', 'Library Courtyard', -37.7970, 144.9612, 1);
+INSERT INTO vendors (name, stall_name, description, category, location, latitude, longitude, image_url, is_active) VALUES
+('Burger Masters', 'Stall B1', 'The juiciest gourmet burgers and loaded fries in town.', 'Food', 'Central Plaza Food Court', -37.7977, 144.9610, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80', 1),
+('Liquid Magic', 'Stall D1', 'Craft cocktails, mocktails, and freshly brewed iced teas to keep you refreshed.', 'Drinks', 'Main Stage Kiosk', -37.7965, 144.9620, 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', 1),
+('Geek Wear', 'Stall M1', 'Exclusive tech and gaming merchandise, apparel, and limited-edition accessories.', 'Merchandise', 'Tech Arena Hall', -37.7980, 144.9600, 'https://images.unsplash.com/photo-1529336953128-a85760f58cb5?auto=format&fit=crop&w=800&q=80', 1),
+('VR Rollercoaster', 'Stall A1', 'Experience the thrill of a rollercoaster in immersive virtual reality.', 'Attraction', 'Entertainment Zone', -37.7990, 144.9590, 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=800&q=80', 1);
 
 -- ─── Announcements ─────────────────────────────────────────
 INSERT INTO announcements (title, content, type) VALUES
-('Welcome to the Fall 2026 Semester!', 'Festival Hub is your central place to discover amazing campus events, connect with clubs, and make unforgettable memories this semester.', 'success'),
-('Hackathon Registrations Closing Soon', 'Just a reminder that the Global Hackathon 2026 registrations close in 48 hours. Secure your spot now!', 'warning'),
-('New Feature: Save Your Favorite Events', 'We have just launched a new feature that allows you to bookmark events. Look out for the heart icon on event cards!', 'info'),
-('Food Fiesta Map Updated', 'The layout for the International Food Fiesta has been updated. Check the event page for the new vendor stall locations.', 'info');
+('Welcome to Festival Hub!', 'Check out our new diverse range of events including music festivals, tech summits, food carnivals, and art exhibitions.', 'success'),
+('Tech Summit Tickets Running Low', 'Secure your spot for the FutureTech Summit 2026 before tickets sell out completely. Grab them while they last!', 'warning');
 
 -- ─── Sample Bookings ───────────────────────────────────────
 INSERT INTO bookings (event_id, visitor_name, visitor_email, ticket_type, quantity, booking_ref) VALUES
-(2, 'Sarah Johnson', 'sarah.j@student.edu', 'General', 1, 'FH-00101'),
-(1, 'Michael Chen', 'mchen@student.edu', 'VIP', 2, 'FH-00102'),
-(4, 'Emma Williams', 'emmaw@student.edu', 'General', 3, 'FH-00103'),
-(7, 'James Brown', 'jbrown@student.edu', 'General', 1, 'FH-00104');
+(1, 'Alice Smith', 'alice@example.com', 'VIP', 2, 'FH-10001'),
+(2, 'Bob Johnson', 'bob@example.com', 'General', 1, 'FH-10002'),
+(3, 'Charlie Brown', 'charlie@example.com', 'General', 4, 'FH-10003'),
+(4, 'Diana Prince', 'diana@example.com', 'General', 2, 'FH-10004');
 
-UPDATE events SET tickets_available = tickets_available - 1 WHERE id = 2;
 UPDATE events SET tickets_available = tickets_available - 2 WHERE id = 1;
-UPDATE events SET tickets_available = tickets_available - 3 WHERE id = 4;
-UPDATE events SET tickets_available = tickets_available - 1 WHERE id = 7;
+UPDATE events SET tickets_available = tickets_available - 1 WHERE id = 2;
+UPDATE events SET tickets_available = tickets_available - 4 WHERE id = 3;
+UPDATE events SET tickets_available = tickets_available - 2 WHERE id = 4;

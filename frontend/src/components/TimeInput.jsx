@@ -73,7 +73,7 @@ export default function TimeInput({ value, onChange, placeholderHr = '12', place
           setHour(e.target.value.replace(/\D/g, ''));
         }}
         onBlur={handleHourBlur}
-        className="w-8 text-center text-lg font-bold outline-none bg-transparent placeholder-ink-tertiary/50" 
+        className="w-12 text-center text-lg font-bold text-ink-primary outline-none bg-transparent placeholder-ink-tertiary/50" 
       />
       <span className="text-xl font-bold text-ink-tertiary/50 pb-1" aria-hidden="true">:</span>
       <input 
@@ -86,7 +86,7 @@ export default function TimeInput({ value, onChange, placeholderHr = '12', place
           setMinute(e.target.value.replace(/\D/g, ''));
         }}
         onBlur={handleMinuteBlur}
-        className="w-8 text-center text-lg font-bold outline-none bg-transparent placeholder-ink-tertiary/50" 
+        className="w-12 text-center text-lg font-bold text-ink-primary outline-none bg-transparent placeholder-ink-tertiary/50" 
       />
       <div className="relative ml-2">
         <select 
